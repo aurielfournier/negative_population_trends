@@ -1,0 +1,63 @@
+---
+title: "Declining_population_simulation"
+output: html_document
+---
+
+```{r setup}
+library(ggplot2)
+library(dplyr)
+simulations = 1000
+
+compare <- data.frame(simulations=1:simulations,allyears=NA, surveyeddata=NA, startyear=NA, negwhennot=NA)
+
+for(sims in 1:simulations){
+
+N0 <- runif(1, 1,100)
+R <- 3
+K <- 500
+
+maxtimesteps = 100
+
+dat <- data.frame(timestep=1:maxtimesteps,popsize=c(N0, rep(NA, 99)))
+
+PopNow <- N0 
+
+for(i in 2:nrow(dat)) { 
+  dat[i,"popsize"] <- dat[(i-1),"popsize"] + dat[(i-1),"popsize"]*R*(1-dat[(i-1),"popsize"]/K)    
+}
+
+allyears <- lm(data=dat, popsize ~ timestep)
+
+compare[sims,"allyears"] <- allyears$coefficients[2]
+
+startdate <- round(runif(1, 1, 80))
+
+compare[sims,"startyear"] <- startdate
+
+surveytimesteps <- seq(startdate, maxtimesteps, by=2)
+
+surveyed_data <- dat[surveytimesteps,]
+
+surveyedyears <- lm(data=surveyed_data, popsize ~ timestep)
+
+compare[sims,"surveyeddata"] <- surveyedyears$coefficients[2]
+
+compare[sims,"negwhennot"] <- ifelse(compare[sims,"surveyeddata"]<0&compare[sims,"allyears"]>0,"yes","no")
+
+}
+
+summary(lm(data=compare, surveyeddata ~ allyears))
+
+ggplot(data=compare, aes(x=surveyeddata, y=allyears))+geom_point()+geom_smooth(method="lm")
+
+summary(lm(data=compare, surveyeddata ~ startyear))
+
+ggplot(data=compare, aes(x=startyear, y=surveyeddata))+geom_point()+geom_smooth(method="lm")
+
+ggplot(data=compare, aes(x=negwhennot)) + 
+        geom_bar()
+
+compare %>% group_by(startyear, negwhennot) %>% summarize(count=n()) %>% mutate(freq = count / sum(count)) %>%
+ggplot(aes(x=startyear, y=freq, color=negwhennot))+geom_line()
+
+```
