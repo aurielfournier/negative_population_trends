@@ -6,6 +6,7 @@ output: html_document
 ```{r setup}
 library(ggplot2)
 library(dplyr)
+library(tidyr)
 simulations = 1000
 
 compare <- data.frame(simulations=1:simulations,allyears=NA, surveyeddata=NA, startyear=NA, negwhennot=NA)
@@ -38,13 +39,20 @@ surveytimesteps <- seq(startdate, maxtimesteps, by=2)
 
 surveyed_data <- dat[surveytimesteps,]
 
-surveyedyears <- lm(data=surveyed_data, popsize ~ timestep)
+for(row in 1:nrow(surveyed_data)){ 
+  surveyed_data[row,"obspopsize"] <- rnorm(1, mean=surveyed_data[row,"popsize"], sd=0.6*surveyed_data[row,"popsize"])
+}
+
+surveyedyears <- lm(data=surveyed_data, obspopsize ~ timestep)
 
 compare[sims,"surveyeddata"] <- surveyedyears$coefficients[2]
 
 compare[sims,"negwhennot"] <- ifelse(compare[sims,"surveyeddata"]<0&compare[sims,"allyears"]>0,"yes","no")
-
 }
+
+sdat <- surveyed_data %>% gather("poptype","popsize",-timestep)
+
+ggplot(data=sdat, aes(x=timestep, y=popsize, color=poptype))+geom_line()+geom_smooth(method="lm")
 
 summary(lm(data=compare, surveyeddata ~ allyears))
 
