@@ -33,7 +33,7 @@ compare[sims,"allyears"] <- allyears$coefficients[2]
 
 startdate <- round(runif(1, 1, 80))
 
-compare[sims,"startyear"] <- startdate
+compare[sims,"startyear"] <- 100 - startdate
 
 surveytimesteps <- seq(startdate, maxtimesteps, by=2)
 
@@ -61,6 +61,8 @@ ggplot(data=compare, aes(x=surveyeddata, y=allyears))+geom_point()+geom_smooth(m
 summary(lm(data=compare, surveyeddata ~ startyear))
 
 ggplot(data=compare, aes(x=startyear, y=surveyeddata))+geom_point()+geom_smooth(method="lm")
+
+ggplot(data=compare, aes(x=allyears, y=surveyeddata, color=startyear))+geom_point()+geom_smooth(method="lm")
 
 ggplot(data=compare, aes(x=negwhennot)) + 
         geom_bar()
