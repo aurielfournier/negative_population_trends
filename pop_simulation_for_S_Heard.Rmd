@@ -1,6 +1,8 @@
 ---
 title: "Declining_population_simulation"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup}
