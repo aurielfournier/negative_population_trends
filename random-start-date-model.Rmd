@@ -10,17 +10,11 @@ library(ggplot2)
 library(tidyverse)
 ```
 
-
-Set number of simulations to whatever we want to run. Create an empty data frame to store the results in.
-
 ```{r}
 simulations = 1000
 
 compare <- data.frame(simulations=1:simulations,allyears_trend=NA, surveyeddata_trend=NA, length_of_monitoring=NA, neg_trend_whennot=NA)
-```
 
-This is where we are actually running the simulation, and then cutting up the results a few different ways. 
-```{r}
 for(sims in 1:simulations){
 
 N0 <- runif(1, 1,700) # grabs our starting population size from a random uniform distribution
