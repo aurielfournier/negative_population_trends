@@ -50,7 +50,7 @@ realtrend <- function(tdat, nspeciestopick=2){
 
 ##################################################################################################
 
-samplingeffort <- function(tdat, frequency=5){
+samplingeffort <- function(tdat, frequency=10){
   
   one <- tdat[,which(tdat[1,]==sort(tdat[1,], TRUE)[1])]
   two <- tdat[,which(tdat[1,]==sort(tdat[1,], TRUE)[2])]
@@ -83,10 +83,10 @@ sampletrend <- function(sdat){
 ###################################################################
 
 
-theproblem <- function(){
+theproblem <- function(freq=5){
   tdat <- twenty_species()
   values <- realtrend(tdat)
-  sdat <- samplingeffort(tdat)
+  sdat <- samplingeffort(tdat, frequency=freq)
   svalues <- sampletrend(sdat)
   outputs <- list()
   outputs[["twenty_species"]] <- tdat
@@ -98,14 +98,14 @@ theproblem <- function(){
 
 ########################################################################
 
-theproblem1000 <- function(sims=1000){
+theproblem1000 <- function(sims=1000, freq=5){
   values <- data.frame(beta=rep(NA,sims*2),pvalue=rep(NA,sims*2))
   svalues <- data.frame(beta=rep(NA,sims*2),pvalue=rep(NA,sims*2))
   
   for(i in seq(1,(sims*2),by=2)){
-    dd <- theproblem()
+    dd <- theproblem(freq=freq)
     values[i:(i+1),] <- dd$values
-    svalues[i:(i+1),] <- dd$values
+    svalues[i:(i+1),] <- dd$sampled_values
   }
   
   outputs <- list()
@@ -116,5 +116,25 @@ theproblem1000 <- function(sims=1000){
   
 }
 
+###########################################################
+###########################################################
+###########################################################
+
+dat <- theproblem1000(freq=3)
+
+library(tidyverse)
+
 values <- dat$values
+svalues <- dat$svalues
+
+valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend")
+svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata")
+
+datdat <- bind_rows(valuessig, svaluessig)
+
+model <- aov(data=datdat, beta ~ type)
+
+summary(model)
+
+ggplot(data=datdat, aes(y=beta, x=type))+ geom_boxplot()
 
