@@ -1,7 +1,14 @@
 
 
+################
+#
+# Generate twenty populations
+#
+################
+
 twenty_species <- function(nspp=20, nyears=100, mu=1000,rho=0.5,CV=0.2,plot=F, K=2000) {
   sim.years <- nyears+10
+  
   ln_SD <- sqrt(log(CV^2+1))  #SD parameter of lognormal distribution with desired variability
   ln_SD_e <- sqrt(ln_SD^2/(1-rho^2))  #SD for first value
   
@@ -20,17 +27,23 @@ twenty_species <- function(nspp=20, nyears=100, mu=1000,rho=0.5,CV=0.2,plot=F, K
   
   time_series <- time_series + log(mu) - 0.5*ln_SD_e^2
   time_series <- exp(time_series)
+  
   return(time_series[-c(1:10),])
 }
 
 
-#################################################################################################
+################
+#
+# Grab the two populations with highest pop at time t=1, see what the trend really is
+#
+################
 
-realtrend <- function(tdat, nspeciestopick=2){
+
+realtrend <- function(time_series, nspeciestopick=2){
   
-  one <- tdat[,which(tdat[1,]==sort(tdat[1,], TRUE)[1])]
-  two <- tdat[,which(tdat[1,]==sort(tdat[1,], TRUE)[2])]
-  year = 1:nrow(tdat)
+  one <- time_series[,which(time_series[1,]==sort(time_series[1,], TRUE)[1])]
+  two <- time_series[,which(time_series[1,]==sort(time_series[1,], TRUE)[2])]
+  year = 1:nrow(time_series)
   
   twospecies <-  data.frame(one, two, year)
   
@@ -39,37 +52,50 @@ realtrend <- function(tdat, nspeciestopick=2){
   speciesmodel1 <- lm(data=twospecies, one ~ year)
   speciesmodel2 <- lm(data=twospecies, two ~ year)
   
+  realstuff <- list()
+  
   values[1,1] <- speciesmodel1$coefficients[2]
   values[1,2] <- summary(speciesmodel1)$coefficients[,4][2]
   
   values[2,1] <- speciesmodel2$coefficients[2]
   values[2,2] <- summary(speciesmodel2)$coefficients[,4][2]
-  
-  return(values)
+
+  realstuff[["values"]] <- values
+  realstuff[["twospecies"]] <- twospecies
+    
+  return(realstuff)
 }
 
-##################################################################################################
+##################
+#
+# sample the real population with some frequency of sampling effort
+#
+##################
 
-samplingeffort <- function(tdat, frequency=10){
+samplingeffort <- function(time_series, frequency=10){
   
-  one <- tdat[,which(tdat[1,]==sort(tdat[1,], TRUE)[1])]
-  two <- tdat[,which(tdat[1,]==sort(tdat[1,], TRUE)[2])]
-  year = 1:nrow(tdat)
+  one <- time_series[,which(time_series[1,]==sort(time_series[1,], TRUE)[1])]
+  two <- time_series[,which(time_series[1,]==sort(time_series[1,], TRUE)[2])]
+  year = 1:nrow(time_series)
   
   twospecies <-  data.frame(one, two, year)
   
-  sampled_data <- twospecies[seq(from=1, to=nrow(tdat), by=frequency),]
+  sampled_data <- twospecies[seq(from=1, to=nrow(time_series), by=frequency),]
   
   return(sampled_data)
 }
 
-##################################################################################################
+##################
+#
+#  What trend do we see in the sampled data? 
+#
+##################
 
-sampletrend <- function(sdat){
+sampletrend <- function(sampled_data){
   sampled_values <- data.frame(beta=c(NA,NA),pvalue=c(NA,NA))
   
-  speciesmodel1 <- lm(data=sdat, one ~ year)
-  speciesmodel2 <- lm(data=sdat, two ~ year)
+  speciesmodel1 <- lm(data=sampled_data, one ~ year)
+  speciesmodel2 <- lm(data=sampled_data, two ~ year)
   
   sampled_values[1,1] <- speciesmodel1$coefficients[2]
   sampled_values[1,2] <- summary(speciesmodel1)$coefficients[,4][2]
@@ -80,37 +106,46 @@ sampletrend <- function(sdat){
   return(sampled_values)
 }
 
-###################################################################
+##################
+#
+#  One simulation, all in one simple function
+#
+##################
 
-
-theproblem <- function(freq=5){
-  tdat <- twenty_species()
-  values <- realtrend(tdat)
-  sdat <- samplingeffort(tdat, frequency=freq)
-  svalues <- sampletrend(sdat)
+onesimulation <- function(freq=5){
+  time_series <- twenty_species()
+  rdat <- realtrend(time_series)
+  sampled_data <- samplingeffort(time_series, frequency=freq)
+  svalues <- sampletrend(sampled_data)
   outputs <- list()
-  outputs[["twenty_species"]] <- tdat
-  outputs[["values"]] <- values
-  outputs[["sampled_data"]] <- sdat
+  outputs[["twenty_species"]] <- time_series
+  outputs[["values"]] <- rdat$values
+  outputs[["twospecies"]] <- rdat$twospecies
+  outputs[["sampled_data"]] <- sampled_data
   outputs[["sampled_values"]] <- svalues
   return(outputs)
 }
 
 ########################################################################
 
-theproblem1000 <- function(sims=1000, freq=5){
+manysimulations <- function(sims=1000, freq=5){
   values <- data.frame(beta=rep(NA,sims*2),pvalue=rep(NA,sims*2))
   svalues <- data.frame(beta=rep(NA,sims*2),pvalue=rep(NA,sims*2))
-  
+  twospecies <- as.data.frame(matrix(ncol=(2*sims), nrow=100))
+  sampleddata <- as.data.frame(matrix(ncol=(2*sims), nrow=ceiling(100/freq)))
   for(i in seq(1,(sims*2),by=2)){
-    dd <- theproblem(freq=freq)
+    dd <- onesimulation(freq=freq)
     values[i:(i+1),] <- dd$values
     svalues[i:(i+1),] <- dd$sampled_values
+    twospecies[,i:(i+1)] <- dd$twospecies[,1:2]
+    sampleddata[,i:(i+1)] <- dd$sampled_data[,1:2]
   }
   
   outputs <- list()
   outputs[["values"]] <- values
   outputs[["svalues"]] <- svalues
+  outputs[["twospecies"]] <- twospecies
+  outputs[["sampleddata"]] <- sampleddata
   
   return(outputs)
   
@@ -118,9 +153,8 @@ theproblem1000 <- function(sims=1000, freq=5){
 
 ###########################################################
 ###########################################################
-###########################################################
 
-dat <- theproblem1000(freq=3)
+dat <- manysimulations(freq=3)
 
 library(tidyverse)
 
@@ -138,3 +172,9 @@ summary(model)
 
 ggplot(data=datdat, aes(y=beta, x=type))+ geom_boxplot()
 
+
+species2 <- dat$twospecies %>% mutate(year=c(1:100)) %>%  gather("sim","value", -year)
+
+ggplot(data=species2, aes(x=year, y=value, group=sim)) + geom_line()
+
+# well ^ that is super uninformative 
