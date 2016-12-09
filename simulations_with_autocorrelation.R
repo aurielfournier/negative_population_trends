@@ -19,26 +19,22 @@ twenty_species <- function(nspp=20, nyears=100, mu=1000,rho=0.5,CV=0.2,plot=F, K
   ## SD for first value
   ln_SD_e <- sqrt(ln_SD^2/(1-rho^2))  
   
-  ## creates empty objects to store results in
-  R <- matrix(nrow=nyears, ncol=nspp)
   ## so each row is a year, and each column is a species
   time_series <- matrix(nrow=nyears, ncol=nspp)
   
-  ## randomly pulls an R for each species
-  for(r in 1:nspp){
-    R[,r] <- rnorm(mean=0,sd=1,n=nyears)
-  }
-  
+  ## randomly pulls an R for each species at each time step
+  R <- matrix(exp(rnorm((nspp*nyears), mean=0, sd=sd)-0.5*sd^2), nrow=nyears, ncol=nspp)
   
   for(spp in 1:nspp){
-    ## Sets the initial population size for each species (column)
-    time_series[1,spp] <- ln_SD_e*R[1,spp]
+  ## Sets the initial population size for each species (column) 
+    time_series[1,spp] <- (exp(rnorm(1, mean=1, sd=ln_SD_e)-0.5*sd^2))
     for (i in 1:(nyears-1)) {
-      ## Runs the population model for each species (column)
+  ## Runs the population model for each species (column)
       time_series[i+1,spp] <- rho*time_series[i,spp]+R[i,spp]*(1-time_series[i,spp]/K)*ln_SD
     }
   }
   
+  # brings it back into 'real world' numbers
   time_series <- time_series + log(mu) - 0.5*ln_SD_e^2
   time_series <- exp(time_series)
   
