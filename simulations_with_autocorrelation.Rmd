@@ -3,7 +3,7 @@ title: "simulation_with_autocorrelation"
 output: html_document
 ---
 
-```{r}
+```{r, warning=FALSE, error=FALSE}
 
 library(tidyverse)
 
@@ -386,7 +386,7 @@ dat <- manysimulations(freq=4)
 
 
 values <- dat$real_values_highest
-svalues <- dat$real_values_highest
+svalues <- dat$sampled_values_highest
 
 valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
 svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
@@ -404,7 +404,7 @@ ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 #
 
 values <- dat$real_values_random
-svalues <- dat$real_values_random
+svalues <- dat$sampled_values_random
 
 valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
 svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
@@ -429,7 +429,7 @@ dat <- manysimulations(freq=bursts_of_sampling, sims=10000)
 
 
 values <- dat$real_values_highest
-svalues <- dat$real_values_highest
+svalues <- dat$sampled_values_highest
 
 valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
 svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
@@ -447,7 +447,7 @@ ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 #
 
 values <- dat$real_values_random
-svalues <- dat$real_values_random
+svalues <- dat$sampled_values_random
 
 valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
 svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
