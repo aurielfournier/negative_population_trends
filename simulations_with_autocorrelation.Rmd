@@ -3,9 +3,26 @@ title: "simulation_with_autocorrelation"
 output: html_document
 ---
 
+A. Not sure why you would need to subset out the simulations with
+significant trends... or maybe I'm  just thinking about the objective
+in a different way. I was thinking the outcome would be two types of
+results: 
+1. Mean and 95% of trends in the survey simulations compared
+to mean and 95% of trends in all populations [or total species
+abundance added up so that larger populations contribute more].  
+
+2.
+Proportion of populations with significant (declines) among the
+surveyed populations, compared to proportion among all populations.
+
+
+
+
 ```{r, warning=FALSE, error=FALSE}
 
 library(tidyverse)
+
+set.seed(2017)
 
 ################
 #
@@ -101,7 +118,6 @@ realtrend <- function(time_series){
   ## puts everything in a list to be output
   realstuff[["real_values_random"]] <- values
   realstuff[["real_data_random"]] <- randomspecies
-  
   return(realstuff)
 }
 
@@ -118,7 +134,7 @@ samplingeffortwitherror <- function(time_series, freq=NA, sd=0.1){
   ## will randomly pull a random set of years to sample on
   ## This checks to see if freq=NA, and if so, does that
   ## If we set freq = to some number it will bipass that and use that instead
-  if(is.na(freq)){
+  if(is.na(freq[1])){
     freq <- sort(base::sample(1:100, sample(1:60, 1), replace=FALSE))
   }
   
@@ -156,7 +172,7 @@ samplingeffortwitherror <- function(time_series, freq=NA, sd=0.1){
   ## will randomly pull a random set of years to sample on
   ## This checks to see if freq=NA, and if so, does that
   ## If we set freq = to some number it will bipass that and use that instead
-  if(is.na(freq)){
+  if(is.na(freq[1])){
     freq <- sort(base::sample(1:100, sample(1:60, 1), replace=FALSE))
   }
   
@@ -295,6 +311,7 @@ manysimulations <- function(sims=1000, freq=NA){
   real_data_random <- as.data.frame(matrix(ncol=(2*sims), nrow=100))
   sampled_data_highest <- list()
   sampled_data_random <- list()
+  twenty_species <- list()
   
   ## Runs through the onesimulation function sims number of times
   ## stores the various results in the different objects
@@ -308,6 +325,9 @@ manysimulations <- function(sims=1000, freq=NA){
     real_data_random[,i:(i+1)] <- dd$real_data_random[,1:2]
     sampled_data_highest[[i]] <- dd$sampled_data_highest[,1:2]
     sampled_data_random[[i]] <- dd$sampled_data_random[,1:2]
+    colnames(dd$twenty_species) <- paste0("spp",1:20)
+    t_species <- data.frame(dd$twenty_species) %>% mutate(year=1:100) %>% gather("variable","value", -year) %>% mutate(sim=i)
+    twenty_species[[i]] <- t_species
   }
   
   ## load everything up into one master list to be outputted
@@ -320,119 +340,32 @@ manysimulations <- function(sims=1000, freq=NA){
   outputs[["real_data_random"]] <- real_data_random
   outputs[["sampled_data_highest"]] <- sampled_data_highest 
   outputs[["sampled_data_random"]] <- sampled_data_random
+  outputs[["twenty_species"]] <- twenty_species
   
   return(outputs)
   
-  # if you get this warning
-  
-  # In if (is.na(freq)) { :
-  #the condition has length > 1 and only the first element will be used
-  
-  # DO NOT FREAK OUT, EVERYTHING IS FINE
-  # It just means you fed it a string of years to subset by and it is only checking to see if the first one is an NA. Which is ok. 
-  
 }
 
-###########################################################
-
-## Random Sampling (perhaps representative of using citizen science or museum records)
-
-###########################################################
-
-dat <- manysimulations(sim=10)
+```
 
 
+Bursts of sampling with bursts of nothing (perhaps representative of a project that is picked up, dropped, picked up again)
 
-values <- dat$real_values_highest
-svalues <- dat$sampled_values_highest
-
-valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
-
-sigdat <- bind_rows(valuessig, svaluessig)
-
-model <- aov(data=sigdat, beta ~ type)
-
-summary(model)
-
-ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
-
-#
-#
-#
-
-values <- dat$real_values_random
-svalues <- dat$sampled_values_random
-
-valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
-
-sigdat <- bind_rows(valuessig, svaluessig)
-
-model <- aov(data=sigdat, beta ~ type)
-
-summary(model)
-
-ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
-
-
-###############
-
-## Regular sampling
-
-###############
-
-dat <- manysimulations(freq=4)
-
-
-values <- dat$real_values_highest
-svalues <- dat$sampled_values_highest
-
-valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
-
-sigdat <- bind_rows(valuessig, svaluessig)
-
-model <- aov(data=sigdat, beta ~ type)
-
-summary(model)
-
-ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
-
-#
-#
-#
-
-values <- dat$real_values_random
-svalues <- dat$sampled_values_random
-
-valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
-
-sigdat <- bind_rows(valuessig, svaluessig)
-
-model <- aov(data=sigdat, beta ~ type)
-
-summary(model)
-
-ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
-
-##################
-
-## Bursts of sampling with bursts of nothing
-
-#################
-
+```{r}
 bursts_of_sampling <- c(1,2,3,4,5,6,15,16,18,19,37,38,39,47,48,56,69,70,71,72,73,74,75,76,77,78,91,92,93,97,99)
 
-dat <- manysimulations(freq=bursts_of_sampling, sims=10000)
+dat <- manysimulations(freq=bursts_of_sampling, sims=10)
 
+# the highest two populations at year 1
 
 values <- dat$real_values_highest
 svalues <- dat$sampled_values_highest
 
-valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
+valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+
+nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
 
 sigdat <- bind_rows(valuessig, svaluessig)
 
@@ -442,15 +375,16 @@ summary(model)
 
 ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 
-#
-#
-#
+# two randomly selected species
 
 values <- dat$real_values_random
 svalues <- dat$sampled_values_random
 
-valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
+valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+
+nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
 
 sigdat <- bind_rows(valuessig, svaluessig)
 
@@ -460,8 +394,25 @@ summary(model)
 
 ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 
+```
 
 
+B. One plot that might be instructive: randomly sample (use set.seed
+so you can get these back again) 5 simulations and plot the trends in
+the surveyed populations in black overlaid on the trends in all
+populations (background in gray), together with the mean and 95%
+interval for all 20 populations.
 
+```{r}
+
+dat <- manysimulations(sims=5)
+
+t20 <- do.call(rbind, dat$twenty_species) %>% mutate(spp_sim = paste0(variable,"_",sim))
+t2 <- dat$real_data_highest %>% mutate(year=1:100) %>% gather("variable","value",-year)
+
+ggplot() + 
+        geom_point(data=t20, aes(x=year, y=value)) + 
+        geom_point(data=t2, aes(x=year, y=value), col="grey")
 
 ```
+
