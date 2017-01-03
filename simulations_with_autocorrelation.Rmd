@@ -3,26 +3,10 @@ title: "simulation_with_autocorrelation"
 output: html_document
 ---
 
-A. Not sure why you would need to subset out the simulations with
-significant trends... or maybe I'm  just thinking about the objective
-in a different way. I was thinking the outcome would be two types of
-results: 
-1. Mean and 95% of trends in the survey simulations compared
-to mean and 95% of trends in all populations [or total species
-abundance added up so that larger populations contribute more].  
-
-2.
-Proportion of populations with significant (declines) among the
-surveyed populations, compared to proportion among all populations.
-
-
-
-
 ```{r, warning=FALSE, error=FALSE}
 
 library(tidyverse)
 
-set.seed(2017)
 
 ################
 #
@@ -391,7 +375,53 @@ Bursts of sampling with bursts of nothing (perhaps representative of a project t
 ```{r}
 bursts_of_sampling <- c(1,2,3,4,5,6,15,16,18,19,37,38,39,47,48,56,69,70,71,72,73,74,75,76,77,78,91,92,93,97,99)
 
-dat <- manysimulations(freq=bursts_of_sampling, sims=10)
+dat <- manysimulations(freq=bursts_of_sampling, sims=100000)
+
+# the highest two populations at year 1
+
+values <- dat$real_values_highest
+svalues <- dat$sampled_values_highest
+
+valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+
+nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+
+sigdat <- bind_rows(valuessig, svaluessig)
+
+model <- aov(data=sigdat, beta ~ type)
+
+summary(model)
+
+ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
+
+# two randomly selected species
+
+values <- dat$real_values_random
+svalues <- dat$sampled_values_random
+
+valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+
+nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+
+sigdat <- bind_rows(valuessig, svaluessig)
+
+model <- aov(data=sigdat, beta ~ type)
+
+summary(model)
+
+ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
+
+```
+
+# Sampling Every 2 Years
+
+```{r}
+
+dat <- manysimulations(freq=2, sims=100000)
 
 # the highest two populations at year 1
 
@@ -434,76 +464,177 @@ ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 ```
 
 
-B. One plot that might be instructive: randomly sample (use set.seed
-so you can get these back again) 5 simulations and plot the trends in
-the surveyed populations in black overlaid on the trends in all
-populations (background in gray), together with the mean and 95%
-interval for all 20 populations.
+# Sampling Every 5 Years
 
 ```{r}
 
-dat <- manysimulations(sims=6)
+dat <- manysimulations(freq=5, sims=100000)
 
-t20 <- do.call(rbind, dat$twenty_species) %>% 
-            mutate(sim=rep(c(1,2,3,4,5,6), each=2000)) 
+# the highest two populations at year 1
 
-dd20 <- lm(data=t20, value ~ year)
+values <- dat$real_values_highest
+svalues <- dat$sampled_values_highest
 
-t20$fitted_value <- dd20$fitted.values
+valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
 
-t20mean <- t20 %>%
-            group_by(year) %>%
-            summarize(mean=mean(fitted_value),
-                      standD=sd(value),
-                   sample_size=n(),
-                   CI=qnorm(0.975)*standD/sqrt(sample_size))
+nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
 
+sigdat <- bind_rows(valuessig, svaluessig)
 
-t2 <- dat$real_data_highest %>% gather("variable","value") %>%  mutate(year=rep(c(1:100),times=12), sim=rep(c(1,2,3,4,5,6), each=200)) 
+model <- aov(data=sigdat, beta ~ type)
 
+summary(model)
 
-dd2 <- lm(data=t2, value ~ year)
+ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 
-t2$fitted_value <- dd2$fitted.values
+# two randomly selected species
 
-t2mean <- t2 %>%
-            group_by(year) %>%
-            summarize(mean=mean(fitted_value),
-                      standD=sd(value),
-                   sample_size=n(),
-                   CI=qnorm(0.975)*standD/sqrt(sample_size))
+values <- dat$real_values_random
+svalues <- dat$sampled_values_random
 
+valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
 
-ggplot()+
-  geom_point(data=t20, col="grey",aes(x=year, y=value, group=variable))+
-  geom_ribbon(data=t20mean, aes(x=year, ymin=mean-CI, ymax=mean+CI), alpha=0.7)+
-  geom_line(data=t20mean, aes(x=year, y=mean))+
-  geom_point(data=t2, aes(x=year, y=value))+
-  stat_smooth(data=t2, aes(x=year, y=value, group=variable), method="lm")+
-  theme_krementz()+
-  facet_wrap(~sim)
+nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
 
+sigdat <- bind_rows(valuessig, svaluessig)
 
+model <- aov(data=sigdat, beta ~ type)
+
+summary(model)
+
+ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 
 ```
 
 
+# Random Sampling
+
 ```{r}
 
-dat <- manysimulations(sims=10000)
+dat <- manysimulations(sims=100000)
 
-mean_survey <- mean(dat$real_values_highest$beta)
-mean_pop <- mean(dat$real_values_all_pops$beta)
-CI_survey <- quantile(dat$real_values_highest$beta, probs=c(0.05, 0.95))
-CI_pop <- quantile(dat$real_values_all_pops$beta, probs=c(0.05, 0.95))
+# the highest two populations at year 1
 
-datdat <- data.frame(rbind(c(mean_survey, CI_survey),c(mean_pop, CI_pop)))
+values <- dat$real_values_highest
+svalues <- dat$sampled_values_highest
+
+valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+
+nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+
+sigdat <- bind_rows(valuessig, svaluessig)
+
+model <- aov(data=sigdat, beta ~ type)
+
+summary(model)
+
+ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
+
+# two randomly selected species
+
+values <- dat$real_values_random
+svalues <- dat$sampled_values_random
+
+valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+
+nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+
+sigdat <- bind_rows(valuessig, svaluessig)
+
+model <- aov(data=sigdat, beta ~ type)
+
+summary(model)
+
+ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
+
+```
+
+# Graph Comparing Mean Trend of Randomly Surveyed Populations to Mean Trend of All 20 Populations
+
+
+```{r}
+
+dat <- manysimulations(sims=100000)
+
+mean_survey <- dat$real_values_highest %>% filter(pvalue<=0.05) %>% summarize(mean = mean(beta))
+
+mean_pop <- dat$real_values_all_pops %>% filter(pvalue<=0.05) %>% summarize(mean = mean(beta))
+
+CI_survey <- dat$real_values_highest %>% filter(pvalue<0.05) %>% summarize(lower=quantile(beta, probs=c(0.05)), upper=quantile(beta, probs=0.95))
+
+CI_pop <- dat$real_values_all_pops %>% filter(pvalue<0.05) %>% summarize(lower=quantile(beta, probs=c(0.05)), upper=quantile(beta, probs=0.95))
+
+datdat <- data.frame(rbind(cbind(mean_survey, CI_survey),cbind(mean_pop, CI_pop)))
 datdat$type <- c("survey","all_pops")
-colnames(datdat) <- c("mean","lower","upper","type")
+
 
 ggplot(data=datdat)+
   geom_point(aes(x=type, y=mean))+
   geom_errorbar(aes(x=type, ymin=lower, ymax=upper))+
   geom_hline(aes(yintercept=0))
+
+```
+
+# The Proportion of significant declining trends in surveyed population versus all 20 populations
+
+```{r}
+
+(dat$real_values_highest %>% filter(pvalue<0.05 & beta<0) %>% nrow())/(dat$real_values_all_pops %>% filter(pvalue<0.05 & beta<0) %>% nrow())
+
+```
+
+
+
+# Figuring showing the two surveyed population's trends overlayed with the overall trend from all 20 populations together, for five seperate simulations. 
+
+```{r, fig.width=10, fig.height=10}
+set.seed(2017) # so the figure looks the same every time
+
+dat <- manysimulations(sims=5)
+
+t20 <- do.call(rbind, dat$twenty_species) %>% # bringing together a data frame of all 20 species
+            mutate(sim=rep(c(1,2,3,4,5), each=2000)) # makes a sim column so we can tell which data came from which simulation
+
+dd20 <- lm(data=t20, value ~ year) # simple linear regression of all 20 species
+
+t20$fitted_value <- dd20$fitted.values # adding the fitted values to the data frame
+
+t20mean <- t20 %>% # data frame with data from the 20 populations
+            group_by(year) %>% # group them by year so we can calculate year specific Confidence Intervals
+            summarize(mean=mean(fitted_value), # fine the mean
+                      standD=sd(value), # find the standard deviation
+                   sample_size=n(), # sample size 
+                   CI=qnorm(0.975)*standD/sqrt(sample_size)) # confidence interval for that particular year
+
+t2 <- dat$real_data_highest %>% # data frame of just the two species (highest populations at year 1) surveyed
+          gather("variable","value") %>%  # turning it from wide to long data
+          mutate(year=rep(c(1:100),times=10), # creating a year column
+                 sim=rep(c(1,2,3,4,5), each=200)) # creating a column indicating what simulation data are from
+
+
+
+dd2 <- lm(data=t2, value ~ year) # simple linear regression of just the two surveyed species
+
+t2$fitted_value <- dd2$fitted.values # adding the fitted values to the data frame
+
+
+ggplot()+
+  geom_point(data=t20, col="grey",aes(x=year, y=value, group=variable))+ # all 20 populations background points
+  geom_ribbon(data=t20mean, aes(x=year, ymin=mean-CI, ymax=mean+CI), alpha=0.7)+ # draws the confidence invertal for that particular year
+  geom_line(data=t20mean, aes(x=year, y=mean))+ # draws the trend line for that particular year
+  geom_point(data=t2, aes(x=year, y=value))+ # draws the points from the two sampled populations
+  stat_smooth(data=t2, aes(x=year, y=value, group=variable), method="lm")+ # draws the trend line with standard error for each species individually
+  theme_krementz()+ # applies a ggplot two theme, named after my advisor David Krementz
+  facet_wrap(~sim) # gives each simulation its own facet
+
+
 
 ```
