@@ -3,11 +3,12 @@ title: "simulation_with_autocorrelation"
 output: html_document
 ---
 
-```{r, warning=FALSE, error=FALSE}
+```{r functions, warning=FALSE, error=FALSE}
 
 library(tidyverse)
+library(auriel)
 
-################
+############
 #
 # Generate twenty populations
 #
@@ -371,21 +372,29 @@ manysimulations <- function(sims=1000, freq=NA){
 
 Bursts of sampling with bursts of nothing (perhaps representative of a project that is picked up, dropped, picked up again)
 
-```{r}
-bursts_of_sampling <- c(1,2,3,4,5,6,15,16,18,19,37,38,39,47,48,56,69,70,71,72,73,74,75,76,77,78,91,92,93,97,99)
+```{r bursts of sampling}
+# bursts_of_sampling <- c(1,2,3,4,5,6,15,16,18,19,37,38,39,47,48,56,69,70,71,72,73,74,75,76,77,78,91,92,93,97,99)
+# 
+# dat <- manysimulations(freq=bursts_of_sampling, sims=100000)
+# 
+# save(dat, file="~/negative_population_trends/bursts_of_sampling.Rdata")
 
-dat <- manysimulations(freq=bursts_of_sampling, sims=100000)
+load("../../Dropbox/negative_population_trends/bursts_of_sampling.Rdata")
 
-# the highest two populations at year 1
+# the highest two populations at year 1 
 
 values <- dat$real_values_highest
 svalues <- dat$sampled_values_highest
 
-valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+negvaluessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+negsvaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
 
-nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
-nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+nrow(negsvaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(negvaluessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+
+valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
+
 
 sigdat <- bind_rows(valuessig, svaluessig)
 
@@ -400,11 +409,15 @@ ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 values <- dat$real_values_random
 svalues <- dat$sampled_values_random
 
-valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+negvaluessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+negsvaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
 
-nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
-nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+nrow(negsvaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(negvaluessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+
+valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
+
 
 sigdat <- bind_rows(valuessig, svaluessig)
 
@@ -418,20 +431,28 @@ ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 
 # Sampling Every 2 Years
 
-```{r}
+```{r every two years}
 
-dat <- manysimulations(freq=2, sims=100000)
+# dat <- manysimulations(freq=2, sims=100000)
+# 
+# 
+# save(dat, file="~/negative_population_trends/every_two_years.Rdata")
+
+load("../../Dropbox/negative_population_trends/every_two_years.Rdata")
 
 # the highest two populations at year 1
 
 values <- dat$real_values_highest
 svalues <- dat$sampled_values_highest
 
-valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+negvaluessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+negsvaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
 
-nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
-nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+nrow(negsvaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(negvaluessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+
+valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
 
 sigdat <- bind_rows(valuessig, svaluessig)
 
@@ -446,11 +467,15 @@ ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 values <- dat$real_values_random
 svalues <- dat$sampled_values_random
 
-valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+negvaluessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+negsvaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
 
-nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
-nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+nrow(negsvaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(negvaluessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+
+valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
+
 
 sigdat <- bind_rows(valuessig, svaluessig)
 
@@ -465,20 +490,29 @@ ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 
 # Sampling Every 5 Years
 
-```{r}
+```{r every five years}
 
-dat <- manysimulations(freq=5, sims=100000)
+# dat <- manysimulations(freq=5, sims=100000)
+# 
+# save(dat, file="~/negative_population_trends/every_five_years.Rdata")
 
 # the highest two populations at year 1
+
+load("../../Dropbox/negative_population_trends/every_five_years.Rdata")
 
 values <- dat$real_values_highest
 svalues <- dat$sampled_values_highest
 
-valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+negvaluessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+negsvaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
 
-nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
-nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+nrow(negsvaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(negvaluessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+
+valuessig <- values %>% filter(pvalue<=0.05 ) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05 ) %>% mutate(type="surveyeddata_significant")
+
+
 
 sigdat <- bind_rows(valuessig, svaluessig)
 
@@ -493,11 +527,15 @@ ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 values <- dat$real_values_random
 svalues <- dat$sampled_values_random
 
-valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+negvaluessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+negsvaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
 
-nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
-nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+nrow(negsvaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(negvaluessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+
+valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05 ) %>% mutate(type="surveyeddata_significant")
+
 
 sigdat <- bind_rows(valuessig, svaluessig)
 
@@ -512,20 +550,29 @@ ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 
 # Random Sampling
 
-```{r}
+```{r random sampling}
 
-dat <- manysimulations(sims=100000)
+# dat <- manysimulations(sims=100000)
+# 
+# 
+# save(dat, file="~/negative_population_trends/random.Rdata")
 
 # the highest two populations at year 1
+
+load("../../Dropbox/negative_population_trends/random.Rdata")
 
 values <- dat$real_values_highest
 svalues <- dat$sampled_values_highest
 
-valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+negvaluessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+negsvaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
 
-nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
-nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+nrow(negsvaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(negvaluessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+
+valuessig <- values %>% filter(pvalue<=0.05 ) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
+
 
 sigdat <- bind_rows(valuessig, svaluessig)
 
@@ -540,11 +587,14 @@ ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 values <- dat$real_values_random
 svalues <- dat$sampled_values_random
 
-valuessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
-svaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
+negvaluessig <- values %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="realtrend_significant")
+negsvaluessig <- svalues %>% filter(pvalue<=0.05 & beta < 0) %>% mutate(type="surveyeddata_significant")
 
-nrow(svaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
-nrow(valuessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+nrow(negsvaluessig)/nrow(svalues) # proportion of the sampled population that has significant negative trend
+nrow(negvaluessig)/nrow(values) # proportion of the real population that has signficaint negative trend
+
+valuessig <- values %>% filter(pvalue<=0.05) %>% mutate(type="realtrend_significant")
+svaluessig <- svalues %>% filter(pvalue<=0.05) %>% mutate(type="surveyeddata_significant")
 
 sigdat <- bind_rows(valuessig, svaluessig)
 
@@ -559,9 +609,7 @@ ggplot(data=sigdat, aes(y=beta, x=type))+ geom_boxplot() + ylim(-10,10)
 # Graph Comparing Mean Trend of Randomly Surveyed Populations to Mean Trend of All 20 Populations
 
 
-```{r}
-
-dat <- manysimulations(sims=100000)
+```{r graph of mean trends}
 
 mean_survey <- dat$real_values_highest %>% filter(pvalue<=0.05) %>% summarize(mean = mean(beta))
 
@@ -584,7 +632,7 @@ ggplot(data=datdat)+
 
 # The Proportion of significant declining trends in surveyed population versus all 20 populations
 
-```{r}
+```{r proportions}
 
 (dat$real_values_highest %>% filter(pvalue<0.05 & beta<0) %>% nrow())/(dat$real_values_all_pops %>% filter(pvalue<0.05 & beta<0) %>% nrow())
 
@@ -594,7 +642,7 @@ ggplot(data=datdat)+
 
 # Figuring showing the two surveyed population's trends overlayed with the overall trend from all 20 populations together, for five seperate simulations. 
 
-```{r, fig.width=10, fig.height=10}
+```{r trend overlay graph, fig.width=10, fig.height=10}
 set.seed(2017) # so the figure looks the same every time
 
 dat <- manysimulations(sims=5)
