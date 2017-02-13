@@ -1,0 +1,114 @@
+---
+output: html_document
+---
+
+#Main Plot
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(cowplot)
+library(tidyverse)
+library(auriel)
+
+
+theme_krementz <- function()
+{
+    theme(axis.text.x = element_text(size = 12, color = "black"), 
+        axis.text.y = element_text(size = 12, color = "black"), 
+        axis.title.y = element_text(size = 20), plot.background = element_blank(), 
+        panel.border = element_blank(), panel.grid.major = element_line(colour = NA), 
+        panel.grid.minor = element_line(colour = NA), title = element_text(size = 20), 
+        panel.background = element_rect(fill = "white"), axis.line.x = element_line(colour = "black"), 
+        axis.line.y = element_line(colour = "black"), strip.background = element_rect(fill = "white", 
+            color = "black"), strip.text = element_text(size = 15))
+}
+
+load("~/negative_population_trends/panel1.Rdata")
+bars1 <- bars %>% 
+            separate(bar, into=c("text","bar"), sep=3) %>%
+            mutate(panel=1)
+load("~/negative_population_trends/panel2.Rdata")
+bars2 <- bars %>% 
+            separate(bar, into=c("text","bar"), sep=3) %>%
+            mutate(panel=2)
+load("~/negative_population_trends/panel3.Rdata")
+bars3 <- bars %>% 
+            separate(bar, into=c("text","bar"), sep=3) %>%
+            mutate(panel=3)
+load("~/negative_population_trends/panel4.Rdata")
+bars4 <- bars %>% 
+            separate(bar, into=c("text","bar"), sep=3) %>%
+            mutate(panel=4)
+load("~/negative_population_trends/panel5.Rdata")
+bars5 <- bars %>% 
+            separate(bar, into=c("text","bar"), sep=3) %>%
+            mutate(panel=5)
+
+barbar <-rbind(bars1, bars2, bars3, bars4, bars5)
+
+(panel1 <- ggplot()+
+  geom_violin(data=barbar, aes(x=bar, y=beta), draw_quantiles = c(0.25, 0.5, 0.75))+
+  theme(axis.title.x=element_blank())+
+  facet_wrap(~panel, nrow=1)+
+  theme_krementz())
+
+
+
+```
+
+Each violin   
+1. True distribution of trends from all simulated populations  
+2. Distribution of trends from 2 randomly chosen populations   
+3. Distribution of trends from the two populations with the largest abundance at the start of sampling, sampling every year  
+4. Same as 3 but sampling every 2 yr  
+5. Same as 3 but sampling every 5 yr
+
+First panel, 20 populations  
+Second panel, 5 populations  
+Third panel, 50 populations  
+Fourth panel, more innerannual variablility  (CV=0.6)
+Fifth panel, less innerannual variability    (CV=0.05)
+
+The three lines in each violine are the 25, 50 and 75 quantiles
+
+10000 simulations go into each bar. 
+
+
+# Populations of Different Sizes
+
+***Populations of different sizes
+A more realistic simulation would have populations that differ in mean
+abundance over time, instead of 20 identical populations. e.g. means
+of each population drawn from a lognormal with mu and sigma. Three
+cases: no variability (sigma=0), low inter-population variability
+(sigma=0.2), and high variability (sigma=0.8) [perhaps there is a
+better distribution for population sizes than lognormal]. In this
+case, you still pick the largest populations at the start of the
+simulations.
+
+
+
+```{r}
+
+
+```
+
+
+# How to calculate Trends
+
+It occurred to me that when calculating trends for the entire species,
+you wouldn't average the trends of individual populations. Instead you
+would weight the large populations more, indeed if you were censusing
+abundance in a bunch of populations, you would add the census numbers
+up, and then calculate the trend from the summed abundance. This would
+lead to a greater bias because the declines would be stronger in
+populations that are large at the start. This would also be important
+for the case where populations are of different sizes at the start of
+the simulation.
+
+```{r}
+
+```
+
+
+
+
