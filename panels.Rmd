@@ -1,5 +1,7 @@
 ---
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r functions, warning=FALSE, error=FALSE, include=FALSE, eval=FALSE}
@@ -934,17 +936,17 @@ manysimulations <- function(sims=1000, freq=NA, spp=20, CV=0.2, sigma=0.2){
 
 # dat0 <- manysimulations(sims=10000, freq=2, sigma=0)
 # save(dat0, file="~/negative_population_trends/mudiff_sigma0.Rdata")
-load(file="~/negative_population_trends/mudiff_sigma0.Rdata")
+load(file="~/../Dropbox/negative_population_trends/mudiff_sigma0.Rdata")
 dat0$real_values_highest$sigma = 0
 
 # dat2 <- manysimulations(sims=10000, freq=2, sigma=0.2)
 # save(dat2, file="~/negative_population_trends/mudiff_sigma2.Rdata")
-load(file="~/negative_population_trends/mudiff_sigma2.Rdata")
+load(file="~/../Dropbox/negative_population_trends/mudiff_sigma2.Rdata")
 dat2$real_values_highest$sigma =0.2
 
 # dat8 <- manysimulations(sims=10000, freq=2, sigma=0.8)
 # save(dat8, file="~/negative_population_trends/mudiff_sigma8.Rdata")
-load(file="~/negative_population_trends/mudiff_sigma8.Rdata")
+load(file="~/../Dropbox/negative_population_trends/mudiff_sigma8.Rdata")
 dat8$real_values_highest$sigma = 0.8
 
 dat <- rbind(dat0$real_values_highest, dat2$real_values_highest, dat8$real_values_highest)
