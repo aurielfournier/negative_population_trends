@@ -1,0 +1,270 @@
+---
+title: "different_year_lengths"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r }
+
+library(tidyverse)
+
+
+
+theme_krementz <- function()
+{
+  theme(axis.text.x = element_text(size = 12, color = "black"), 
+        axis.text.y = element_text(size = 12, color = "black"), 
+        axis.title.y = element_text(size = 20), plot.background = element_blank(), 
+        panel.border = element_blank(), panel.grid.major = element_line(colour = NA), 
+        panel.grid.minor = element_line(colour = NA), title = element_text(size = 20), 
+        panel.background = element_rect(fill = "white"), axis.line.x = element_line(colour = "black"), 
+        axis.line.y = element_line(colour = "black"), strip.background = element_rect(fill = "white", 
+                                                                                      color = "black"), strip.text = element_text(size = 15))
+}
+
+
+
+load("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears2.Rdata")
+#load("~/../Dropbox/negative_population_trends/10ksims_freq2_spp20_numyears2.Rdata")
+#load("~/../Dropbox/negative_population_trends/10ksims_freq5_spp20_numyears2.Rdata")
+
+# 1. True distribution of trends from all simulated populations
+# 2. Distribution of trends from 2 randomly chosen populations
+# 3. Distribution of trends from the two populations with the largest abundance at the start of sampling,
+# sampling every year
+# 4. Same as 3 but sampling every 2 yr
+# 5. Same as 3 but sampling every 5 yr
+
+y2bar1 <- year1$real_values_all_pops %>% mutate(bar=1)
+y2bar2 <- year1$sampled_values_random %>% mutate(bar=2)
+y2bar3 <- year1$sampled_values_highest %>% mutate(bar=3)
+
+
+y2 <- rbind(y2bar1, y2bar2, y2bar3)
+
+write.csv(y2, file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears2.csv", row.names = FALSE)
+
+(panel2 <- ggplot()+
+    geom_boxplot(data=y2, aes(x=factor(bar), y=beta))+
+    theme(axis.title.x=element_blank())+
+    theme_krementz())
+
+
+
+########
+ # 5
+###########
+
+load("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears5.Rdata")
+#load("~/../Dropbox/negative_population_trends/10ksims_freq2_spp20_numyears5.Rdata")
+#load("~/../Dropbox/negative_population_trends/10ksims_freq5_spp20_numyears5.Rdata")
+
+# 1. True distribution of trends from all simulated populations
+# 2. Distribution of trends from 2 randomly chosen populations
+# 3. Distribution of trends from the two populations with the largest abundance at the start of sampling,
+# sampling every year
+# 4. Same as 3 but sampling every 2 yr
+# 5. Same as 3 but sampling every 5 yr
+
+y5bar1 <- year1$real_values_all_pops %>% mutate(bar=1)
+y5bar2 <- year1$sampled_values_random %>% mutate(bar=2)
+y5bar3 <- year1$sampled_values_highest %>% mutate(bar=3)
+#y5bar4 <- year2$sampled_values_highest %>% mutate(bar=4)
+
+y5 <- rbind(y5bar1, y5bar2, y5bar3)
+
+write.csv(y5, file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears5.csv", row.names = FALSE)
+
+(panel5 <- ggplot()+
+    geom_boxplot(data=y5, aes(x=factor(bar), y=beta))+
+    theme(axis.title.x=element_blank())+
+    theme_krementz())
+
+
+#######
+# 10
+####
+
+
+
+load("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears10.Rdata")
+##load("~/../Dropbox/negative_population_trends/10ksims_freq2_spp20_numyears10.Rdata")
+#load("~/../Dropbox/negative_population_trends/10ksims_freq5_spp20_numyears10.Rdata")
+
+# 1. True distribution of trends from all simulated populations
+# 2. Distribution of trends from 2 randomly chosen populations
+# 3. Distribution of trends from the two populations with the largest abundance at the start of sampling,
+# sampling every year
+# 4. Same as 3 but sampling every 2 yr
+# 5. Same as 3 but sampling every 5 yr
+
+y10bar1 <- year1$real_values_all_pops %>% mutate(bar=1)
+y10bar2 <- year1$sampled_values_random %>% mutate(bar=2)
+y10bar3 <- year1$sampled_values_highest %>% mutate(bar=3)
+#y10bar4 <- year2$sampled_values_highest %>% mutate(bar=4)
+#y10bar5 <- year3$sampled_values_highest %>% mutate(bar=5)
+
+y10 <- rbind(y10bar1, y10bar2, y10bar3)#, y10bar4, y10bar5)
+
+write.csv(y10, file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears10.csv", row.names = FALSE)
+
+(panel10 <- ggplot()+
+    geom_boxplot(data=y10, aes(x=factor(bar), y=beta))+
+    theme(axis.title.x=element_blank())+
+    theme_krementz())
+
+
+
+
+#######
+# 20
+####
+
+```
+
+```{r}
+
+
+
+
+load("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears20.Rdata")
+#load("~/../Dropbox/negative_population_trends/10ksims_freq2_spp20_numyears20.Rdata")
+#load("~/../Dropbox/negative_population_trends/10ksims_freq5_spp20_numyears20.Rdata")
+
+# 1. True distribution of trends from all simulated populations
+# 2. Distribution of trends from 2 randomly chosen populations
+# 3. Distribution of trends from the two populations with the largest abundance at the start of sampling,
+# sampling every year
+# 4. Same as 3 but sampling every 2 yr
+# 5. Same as 3 but sampling every 5 yr
+
+y20bar1 <- year1$real_values_all_pops %>% mutate(bar=1)
+y20bar2 <- year1$sampled_values_random %>% mutate(bar=2)
+y20bar3 <- year1$sampled_values_highest %>% mutate(bar=3)
+#y20bar4 <- year2$sampled_values_highest %>% mutate(bar=4)
+#y20bar5 <- year3$sampled_values_highest %>% mutate(bar=5)
+
+y20 <- rbind(y20bar1, y20bar2, y20bar3)#, y20bar4, y20bar5)
+
+write.csv(y20, file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears20.csv", row.names = FALSE)
+
+(panel20 <- ggplot()+
+    geom_boxplot(data=y20, aes(x=factor(bar), y=beta))+
+    theme(axis.title.x=element_blank())+
+    theme_krementz())
+
+
+
+```
+
+```{r}
+
+#######
+# 40
+####
+
+
+# 
+# 
+# load("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears40.Rdata")
+# load("~/../Dropbox/negative_population_trends/10ksims_freq2_spp20_numyears40.Rdata")
+# load("~/../Dropbox/negative_population_trends/10ksims_freq5_spp20_numyears40.Rdata")
+
+# 1. True distribution of trends from all simulated populations
+# 2. Distribution of trends from 2 randomly chosen populations
+# 3. Distribution of trends from the two populations with the largest abundance at the start of sampling,
+# sampling every year
+# 4. Same as 3 but sampling every 2 yr
+# 5. Same as 3 but sampling every 5 yr
+# 
+# y40bar1 <- year1$real_values_all_pops %>% mutate(bar=1)
+# y40bar2 <- year1$sampled_values_random %>% mutate(bar=2)
+# y40bar3 <- year1$sampled_values_highest %>% mutate(bar=3)
+# #y40bar4 <- year2$sampled_values_highest %>% mutate(bar=4)
+# #y40bar5 <- year3$sampled_values_highest %>% mutate(bar=5)
+# 
+# y40 <- rbind(y40bar1, y40bar2, y40bar3)#, y40bar4, y40bar5)
+# 
+# 
+# 
+# (panel40 <- ggplot()+
+#     geom_boxplot(data=y40, aes(x=factor(bar), y=beta))+
+#     theme(axis.title.x=element_blank())+
+#     theme_krementz())
+
+
+#######
+# 50
+####
+
+
+
+
+load("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears50.Rdata")
+##load("~/../Dropbox/negative_population_trends/10ksims_freq2_spp20_numyears20.Rdata")
+#load("~/../Dropbox/negative_population_trends/10ksims_freq5_spp20_numyears20.Rdata")
+
+# 1. True distribution of trends from all simulated populations
+# 2. Distribution of trends from 2 randomly chosen populations
+# 3. Distribution of trends from the two populations with the largest abundance at the start of sampling,
+# sampling every year
+# 4. Same as 3 but sampling every 2 yr
+# 5. Same as 3 but sampling every 5 yr
+
+y50bar1 <- year1$real_values_all_pops %>% mutate(bar=1)
+y50bar2 <- year1$sampled_values_random %>% mutate(bar=2)
+y50bar3 <- year1$sampled_values_highest %>% mutate(bar=3)
+#y20bar4 <- year2$sampled_values_highest %>% mutate(bar=4)
+#y20bar5 <- year3$sampled_values_highest %>% mutate(bar=5)
+
+y50 <- rbind(y50bar1, y50bar2, y50bar3)#, y20bar4, y20bar5)
+
+write.csv(y50, file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears50.csv", row.names = FALSE)
+
+(panel50 <- ggplot()+
+    geom_boxplot(data=y50, aes(x=factor(bar), y=beta))+
+    theme(axis.title.x=element_blank())+
+    theme_krementz())
+
+#######
+# 100
+####
+
+
+```
+
+```{r}
+
+
+
+load("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears100.Rdata")
+
+# 1. True distribution of trends from all simulated populations
+# 2. Distribution of trends from 2 randomly chosen populations
+# 3. Distribution of trends from the two populations with the largest abundance at the start of sampling,
+# sampling every year
+# 4. Same as 3 but sampling every 2 yr
+# 5. Same as 3 but sampling every 5 yr
+
+y100bar1 <- year1$real_values_all_pops %>% mutate(bar=1)
+y100bar2 <- year1$sampled_values_random %>% mutate(bar=2)
+y100bar3 <- year1$sampled_values_highest %>% mutate(bar=3)
+#y20bar4 <- year2$sampled_values_highest %>% mutate(bar=4)
+#y20bar5 <- year3$sampled_values_highest %>% mutate(bar=5)
+
+y100 <- rbind(y100bar1, y100bar2, y100bar3)#, y20bar4, y20bar5)
+
+write.csv(y100, file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears100.csv", row.names = FALSE)
+
+(panel100 <- ggplot()+
+    geom_boxplot(data=y100, aes(x=factor(bar), y=beta))+
+    theme(axis.title.x=element_blank())+
+    theme_krementz())
+
+
+
+
+
+
+```

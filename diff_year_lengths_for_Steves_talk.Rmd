@@ -332,6 +332,11 @@ onesimulation <- function(freq=NA, spp.=20, CV.=0.2, numyears=100){
   return(outputs)
 }
 
+
+
+
+manysimulations <- function(sims=1000, freq=NA, spp=20, CV=0.2, numyears=100){
+
   ## Create empty objects to store results in
   ## sampledata is a list because the number of rows could vary from sim to sim
   real_values_highest <- data.frame(beta=rep(NA,sims*2),SE=rep(NA,sims*2),pvalue=rep(NA,sims*2),rsquared=rep(NA,sims*2))
@@ -343,10 +348,7 @@ onesimulation <- function(freq=NA, spp.=20, CV.=0.2, numyears=100){
   real_data_random <- as.data.frame(matrix(ncol=(2*sims), nrow=numyears))
 
 
-
-
-manysimulations <- function(sims=1000, freq=NA, spp=20, CV=0.2, numyears=100){
-  
+    
   sampled_data_highest <- list()
   sampled_data_random <- list()
   twenty_species <- list()
@@ -456,64 +458,13 @@ save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears40.Rd
 
 year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=40)
 save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears40.Rdata")
-```
 
 
-# Main Plot
-
-```{r, echo=FALSE, warning=FALSE, message=FALSE} 
-library(cowplot)
-library(tidyverse)
-library(auriel)
 
 
-theme_krementz <- function()
-{
-    theme(axis.text.x = element_text(size = 12, color = "black"), 
-        axis.text.y = element_text(size = 12, color = "black"), 
-        axis.title.y = element_text(size = 20), plot.background = element_blank(), 
-        panel.border = element_blank(), panel.grid.major = element_line(colour = NA), 
-        panel.grid.minor = element_line(colour = NA), title = element_text(size = 20), 
-        panel.background = element_rect(fill = "white"), axis.line.x = element_line(colour = "black"), 
-        axis.line.y = element_line(colour = "black"), strip.background = element_rect(fill = "white", 
-            color = "black"), strip.text = element_text(size = 15))
-}
 
-load("~/negative_population_trends/panel1.Rdata")
-bars1 <- bars %>% 
-            separate(bar, into=c("text","bar"), sep=3) %>%
-            mutate(species=20)
-load("~/negative_population_trends/panel2.Rdata")
-bars2 <- bars %>% 
-            separate(bar, into=c("text","bar"), sep=3) %>%
-            mutate(species=5)
-load("~/negative_population_trends/panel3.Rdata")
-bars3 <- bars %>% 
-            separate(bar, into=c("text","bar"), sep=3) %>%
-            mutate(species=50)
-
-
-barbar <-rbind(bars1, bars2, bars3)
-
-(panel1 <- ggplot()+
-    geom_hline(yintercept=0)+
-  geom_violin(data=barbar, aes(x=bar, y=beta), draw_quantiles = c(0.25, 0.5, 0.75))+
-  theme(axis.title.x=element_blank())+
-  facet_wrap(~species, nrow=1)+
-  theme_krementz())
-
-
+year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=50)
+save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears50.Rdata")
 
 ```
-
-Each violin   
-1. True distribution of trends from all simulated populations  
-2. Distribution of trends from 2 randomly chosen populations   
-3. Distribution of trends from the two populations with the largest abundance at the start of sampling, sampling every year  
-4. Same as 3 but sampling every 2 yr  
-5. Same as 3 but sampling every 5 yr
-
-The three lines in each violine are the 25, 50 and 75 quantiles
-
-10000 simulations go into each bar. 
 

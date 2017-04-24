@@ -1,0 +1,49 @@
+---
+title: "percentage_negative"
+output: pdf_document
+---
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+
+y2 <- read.csv("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears2.csv")
+y5 <- read.csv("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears5.csv")
+y10 <- read.csv("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears10.csv")
+y20 <- read.csv("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears20.csv")
+y50 <- read.csv("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears50.csv")
+y100 <- read.csv("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears100.csv")
+
+y2 %>% group_by(bar) %>% 
+                summarize(samplesize=n(),
+                          negativebeta = sum(beta<0),
+                          percent = negativebeta/samplesize*100)
+
+y5 %>% group_by(bar) %>% 
+                summarize(samplesize=n(),
+                          negativebeta = sum(beta<0),
+                          percent = negativebeta/samplesize*100)
+
+y10 %>% group_by(bar) %>% 
+                summarize(samplesize=n(),
+                          negativebeta = sum(beta<0),
+                          percent = negativebeta/samplesize*100)
+
+y20 %>% group_by(bar) %>% 
+                summarize(samplesize=n(),
+                          negativebeta = sum(beta<0),
+                          percent = negativebeta/samplesize*100)
+
+y50 %>% group_by(bar) %>% 
+                summarize(samplesize=n(),
+                          negativebeta = sum(beta<0),
+                          percent = negativebeta/samplesize*100)
+
+y100 %>% group_by(bar) %>% 
+                summarize(samplesize=n(),
+                          negativebeta = sum(beta<0),
+                          percent = negativebeta/samplesize*100)
+
+
+
+
+```
