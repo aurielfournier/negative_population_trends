@@ -1,0 +1,166 @@
+---
+title: "Untitled"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+library(tidyverse)
+
+load(file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears2.Rdata")
+
+
+rr <- year1$twenty_species %>% 
+ # get rid of those NULLs
+ discard(is.null) %>%
+  map( ~ filter(.x, year==1|year==2))
+
+rrr <- do.call(rbind, rr)  %>% spread(year, value) %>% mutate(smaller=`1`>`2`) %>% group_by(smaller) %>% summarize(n=n())
+
+realitypercent2 <- rrr[2,2]/sum(rrr$n)
+
+
+random2 <- do.call(rbind, year1$real_data_random)  %>% as.data.frame() %>% mutate(smaller=V1 > V2) %>% group_by(smaller) %>% summarize(n=n())
+
+randompercent2 <- random2[2,2]/sum(random2$n)
+
+
+highest2 <- do.call(rbind, year1$real_data_highest)  %>% as.data.frame() %>% mutate(smaller=V1 > V2) %>% group_by(smaller) %>% summarize(n=n())
+
+highestpercent2 <- highest2[2,2]/sum(highest2$n)
+
+table_2_years <- data.frame(type=c("all","random","highest"),percent=c(realitypercent2$n, randompercent2$n, highestpercent2$n))
+
+load(file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears5.Rdata")
+
+rr <- year1$twenty_species %>% 
+ # get rid of those NULLs
+ discard(is.null) %>%
+  map( ~ filter(.x, year==1|year==5))
+
+rrr <- do.call(rbind, rr)  %>% spread(year, value) %>% mutate(smaller=`1`>`5`) %>% group_by(smaller) %>% summarize(n=n())
+
+realitypercent2 <- rrr[2,2]/sum(rrr$n)
+
+
+random2 <- do.call(rbind, year1$real_data_random)  %>% as.data.frame() %>% mutate(smaller=V1 > V5) %>% group_by(smaller) %>% summarize(n=n())
+
+randompercent2 <- random2[2,2]/sum(random2$n)
+
+
+highest2 <- do.call(rbind, year1$real_data_highest)  %>% as.data.frame() %>% mutate(smaller=V1 > V5) %>% group_by(smaller) %>% summarize(n=n())
+
+highestpercent2 <- highest2[2,2]/sum(highest2$n)
+
+table_5_years <- data.frame(type=c("all","random","highest"),percent=c(realitypercent2$n, randompercent2$n, highestpercent2$n))
+
+
+load(file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears10.Rdata")
+
+rr <- year1$twenty_species %>% 
+ # get rid of those NULLs
+ discard(is.null) %>%
+  map( ~ filter(.x, year==1|year==10))
+
+rrr <- do.call(rbind, rr)  %>% spread(year, value) %>% mutate(smaller=`1`>`10`) %>% group_by(smaller) %>% summarize(n=n())
+
+realitypercent2 <- rrr[2,2]/sum(rrr$n)
+
+
+random2 <- do.call(rbind, year1$real_data_random)  %>% as.data.frame() %>% mutate(smaller=V1 > V10) %>% group_by(smaller) %>% summarize(n=n())
+
+randompercent2 <- random2[2,2]/sum(random2$n)
+
+
+highest2 <- do.call(rbind, year1$real_data_highest)  %>% as.data.frame() %>% mutate(smaller=V1 > V10) %>% group_by(smaller) %>% summarize(n=n())
+
+highestpercent2 <- highest2[2,2]/sum(highest2$n)
+
+table_10_years <- data.frame(type=c("all","random","highest"),percent=c(realitypercent2$n, randompercent2$n, highestpercent2$n))
+
+
+load(file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears20.Rdata")
+
+rr <- year1$twenty_species %>% 
+ # get rid of those NULLs
+ discard(is.null) %>%
+  map( ~ filter(.x, year==1|year==20))
+
+rrr <- do.call(rbind, rr)  %>% spread(year, value) %>% mutate(smaller=`1`>`20`) %>% group_by(smaller) %>% summarize(n=n())
+
+realitypercent2 <- rrr[2,2]/sum(rrr$n)
+
+
+random2 <- do.call(rbind, year1$real_data_random)  %>% as.data.frame() %>% mutate(smaller=V1 > V20) %>% group_by(smaller) %>% summarize(n=n())
+
+randompercent2 <- random2[2,2]/sum(random2$n)
+
+
+highest2 <- do.call(rbind, year1$real_data_highest)  %>% as.data.frame() %>% mutate(smaller=V1 > V20) %>% group_by(smaller) %>% summarize(n=n())
+
+highestpercent2 <- highest2[2,2]/sum(highest2$n)
+
+table_20_years <- data.frame(type=c("all","random","highest"),percent=c(realitypercent2$n, randompercent2$n, highestpercent2$n))
+
+
+load(file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears50.Rdata")
+
+rr <- year1$twenty_species %>% 
+ # get rid of those NULLs
+ discard(is.null) %>%
+  map( ~ filter(.x, year==1|year==50))
+
+rrr <- do.call(rbind, rr)  %>% spread(year, value) %>% mutate(smaller=`1`>`50`) %>% group_by(smaller) %>% summarize(n=n())
+
+realitypercent2 <- rrr[2,2]/sum(rrr$n)
+
+
+random2 <- do.call(rbind, year1$real_data_random)  %>% as.data.frame() %>% mutate(smaller=V1 > V50) %>% group_by(smaller) %>% summarize(n=n())
+
+randompercent2 <- random2[2,2]/sum(random2$n)
+
+
+highest2 <- do.call(rbind, year1$real_data_highest)  %>% as.data.frame() %>% mutate(smaller=V1 > V50) %>% group_by(smaller) %>% summarize(n=n())
+
+highestpercent2 <- highest2[2,2]/sum(highest2$n)
+
+table_50_years <- data.frame(type=c("all","random","highest"),percent=c(realitypercent2$n, randompercent2$n, highestpercent2$n))
+
+load(file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears100.Rdata")
+
+rr <- year1$twenty_species %>% 
+ # get rid of those NULLs
+ discard(is.null) %>%
+  map( ~ filter(.x, year==1|year==100))
+
+rrr <- do.call(rbind, rr)  %>% spread(year, value) %>% mutate(smaller=`1`>`100`) %>% group_by(smaller) %>% summarize(n=n())
+
+realitypercent2 <- rrr[2,2]/sum(rrr$n)
+
+
+random2 <- do.call(rbind, year1$real_data_random)  %>% as.data.frame() %>% mutate(smaller=V1 > V100) %>% group_by(smaller) %>% summarize(n=n())
+
+randompercent2 <- random2[2,2]/sum(random2$n)
+
+
+highest2 <- do.call(rbind, year1$real_data_highest)  %>% as.data.frame() %>% mutate(smaller=V1 > V100) %>% group_by(smaller) %>% summarize(n=n())
+
+highestpercent2 <- highest2[2,2]/sum(highest2$n)
+
+table_100_years <- data.frame(type=c("all","random","highest"),percent=c(realitypercent2$n, randompercent2$n, highestpercent2$n))
+
+
+table_2_years
+
+table_5_years
+
+table_10_years
+
+table_20_years
+
+table_50_years
+
+table_100_years
+
+````
