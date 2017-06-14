@@ -54,7 +54,7 @@ realtrend <- function(time_series, spp.=spp, numyears=100){
   highestspecies <-  data.frame(one, two, year)
   
   highestspecies <- highestspecies[1:numyears,]
-  
+               
   ## Creates empty object to put results into
   values <- data.frame(beta=c(NA,NA),SE=c(NA,NA),pvalue=c(NA,NA), rsquared=c(NA,NA))
   
