@@ -393,29 +393,16 @@ manysimulations <- function(sims=1000, freq=NA, spp=20, CV=0.2, numyears=100){
 ```
 
 ```{r Panel1, include=FALSE, eval=FALSE}
-# Started 416pm APril20201`7
-# year1 <- manysimulations(freq=1, spp=20, sims=10000)
-# save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears100.Rdata")
-# 
-# year2 <- manysimulations(freq=2, spp=20, sims=10000)
-# save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears100.Rdata")
-# 
-# year3 <- manysimulations(freq=5, spp=20, sims=10000)
-# save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears100.Rdata")
-# 
-# 
-# 
-# 
-# year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=2)
-# save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears2.Rdata")
-# 
-# year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=2)
-# save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears2.Rdata")
-# 
-# year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=2)
-# save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears2.Rdata")
-# 
+year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=2)
+save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears2.Rdata")
 
+year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=2)
+save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears2.Rdata")
+
+year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=2)
+save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears2.Rdata")
+
+#########---------------------
 
 year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=5)
 save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears5.Rdata")
@@ -426,7 +413,7 @@ save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears5.Rda
 year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=5)
 save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears5.Rdata")
 
-
+#########---------------------
 
 year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=10)
 save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears10.Rdata")
@@ -437,7 +424,7 @@ save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears10.Rd
 year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=10)
 save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears10.Rdata")
 
-
+#########---------------------
 
 year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=20)
 save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears20.Rdata")
@@ -448,7 +435,7 @@ save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears20.Rd
 year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=20)
 save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears20.Rdata")
 
-
+#########---------------------
 
 year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=40)
 save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears40.Rdata")
@@ -459,12 +446,21 @@ save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears40.Rd
 year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=40)
 save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears40.Rdata")
 
-
-
-
+#########---------------------
 
 year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=50)
 save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears50.Rdata")
+
+#########---------------------
+
+year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=100)
+save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears100.Rdata")
+
+year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=100)
+save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears100.Rdata")
+
+year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=100)
+save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears100.Rdata")
 
 ```
 
