@@ -64,3 +64,8 @@ a <- ggplot(data=datpercent, aes(x=years, y=percent))+
 ggsave(a, file="~/negative_population_trends/figure1.jpeg", width=10, height=10, units="cm")
 
 ggsave(b, file="~/negative_population_trends/figure2.jpeg", width=10, height=10, units="cm")
+
+
+jpeg(file="~/negative_population_trends/sim_fig_combined.jpeg", width=20, height=10, units="cm", res=300)
+cowplot::plot_grid(a,b,nrow=1)
+dev.off()
