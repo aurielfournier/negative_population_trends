@@ -27,6 +27,7 @@ generate_species <- function(nyears=100, mu=1000,rho=0.5,CV.=0.2, spp.=20) {
   ln_SD_e <- sqrt(ln_SD^2/(1-rho^2))  #SD for first value
   time_series_temp <- matrix(rnorm(mean=0,sd=1,n=sim.years*spp.),ncol=spp., nrow=sim.years)
   time_series <- matrix(nrow=sim.years,ncol=spp.)
+  
   time_series[1,] <- ln_SD_e*time_series_temp[1,]
   for (i in 2:(sim.years)) {
     time_series[i,] <- rho*time_series[(i-1),]+time_series_temp[i,]*ln_SD
@@ -166,7 +167,6 @@ samplingeffortwitherror <- function(time_series, freq=NA, sd=0.1, numyears=100){
   twospecies <-  data.frame(one, two, year)
   twospecies <- twospecies[1:numyears,]
   
-  ## if we have more then 5 years to sample from, we sample as we normally would
   if(numyears>=5){
         ## If we have set freq = to some single value, this if statement runs
         if(length(freq)==1){

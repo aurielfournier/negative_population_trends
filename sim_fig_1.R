@@ -1,36 +1,36 @@
 library(ggplot2)
 library(tidyverse)
 library(auriel)
-
+truebr = 1
 br = 3
 
 dat2 <- read.csv("10ksims_freq1_spp20_nyears2.csv") %>%
-  filter(bar==br) %>% 
+  #filter(bar==br|bar==truebr) %>% 
   mutate(bar = factor(bar),
          years=2)
 
 dat5 <- read.csv("10ksims_freq1_spp20_nyears5.csv") %>%
-  filter(bar==br) %>% 
+  #filter(bar==br|bar==truebr) %>% 
   mutate(bar = factor(bar),
          years=5)
 
 dat10 <- read.csv("10ksims_freq1_spp20_nyears10.csv") %>%
-  filter(bar==br) %>% 
+  #filter(bar==br|bar==truebr) %>% 
   mutate(bar = factor(bar),
          years=10)
 
 dat20 <- read.csv("10ksims_freq1_spp20_nyears20.csv") %>%
-  filter(bar==br) %>% 
+  #filter(bar==br|bar==truebr) %>% 
   mutate(bar = factor(bar),
          years=20)
 
 dat50 <- read.csv("10ksims_freq1_spp20_nyears50.csv") %>%
-  filter(bar==br) %>% 
+  #filter(bar==br|bar==truebr) %>% 
   mutate(bar = factor(bar),
          years=50)
 
 dat100 <- read.csv("10ksims_freq1_spp20_nyears100.csv") %>%
-  filter(bar==br) %>% 
+  #filter(bar==br|bar==truebr) %>% 
   mutate(bar = factor(bar),
          years=100)
 
@@ -44,12 +44,14 @@ b <- ggplot(data=dat, aes(x=years, y=beta))+
   theme_krementz()+
   geom_hline(aes(yintercept=0))+
   ylab("Regression Slope")+
-  xlab("Length of Time \nSeries (years)")
+  xlab("Length of Time \nSeries (years)")+
+  facet_wrap(~bar)+
+  ylim(-500,500)
 
 
 datpercent <- dat %>%
               mutate(negative = ifelse(beta<0,1,0)) %>%
-              group_by(years) %>%
+              group_by(years, bar) %>%
               summarize(total = n(),
                         declining = sum(negative),
                         percent = declining/total)
@@ -59,11 +61,12 @@ a <- ggplot(data=datpercent, aes(x=years, y=percent))+
       ylab("Percent Declines \nDetected")+
       theme_krementz()+
       xlab("Length of Time \nSeries (Years)")+
-      ylim(0,1)
+      ylim(0,1)+
+      facet_wrap(~bar)
 
-ggsave(a, file="~/negative_population_trends/figure1.jpeg", width=10, height=10, units="cm")
+ggsave(a, file="~/negative_population_trends/figure1.jpeg", width=30, height=10, units="cm")
 
-ggsave(b, file="~/negative_population_trends/figure2.jpeg", width=10, height=10, units="cm")
+ggsave(b, file="~/negative_population_trends/figure2.jpeg", width=30, height=10, units="cm")
 
 
 jpeg(file="~/negative_population_trends/sim_fig_combined.jpeg", width=20, height=10, units="cm", res=300)
