@@ -106,13 +106,12 @@ long-term monitoring of a Chihuahuan Desert ecosystem near Portal,
 Arizona, USA (Ernest et al. 2009). Since 1978, 24 individual replicate
 plots have been sampled. Monitoring includes ants, plants, and rodents.
 The experimental design, with replicates of plots, allows us to test
-ideas of sampling bias. Therefore, we explored biased subsets of the
-data and observed the effect of the sampling on assessing long-term
-trends.
+ideas of sampling bias. Thus, we explored biased subsets of the data and
+observed the effect of the sampling on assessing long-term trends.
 
 We compared two subsets of data: 1) total abundance of the two initially
-(first 5 years) most abundant plots and 2) random selections of any pair
-of plots. This biased sampling allowed us to see the effect of only
+(in the first year) most abundant plots and 2) random selections of any
+pair of plots. This biased sampling allowed us to see the effect of only
 sampling the most common plots. We then used simple linear regression to
 estimate the population increase or decrease over time. We hypothesized
 that the initially most abundant plots should see significantly larger
@@ -125,7 +124,7 @@ reduce bias in selecting only the most common sites.
 
 \section{Results: Portal data}
 
-\begin{figure}[htbp]
+\begin{figure}
 \centering
 \includegraphics{Empirical_Investigation_files/figure-latex/unnamed-chunk-2-1.pdf}
 \caption{This figure denotes the subset of data where the first five
@@ -138,7 +137,7 @@ of the distribution less than or greater than the slope estimate for the
 most common sites.\label{fig:common_vs_random_with5}}
 \end{figure}
 
-\begin{figure}[htbp]
+\begin{figure}
 \centering
 \includegraphics{Empirical_Investigation_files/figure-latex/unnamed-chunk-3-1.pdf}
 \caption{This figure denotes the subset of data where the first five
@@ -154,11 +153,11 @@ most common sites.\label{fig:common_vs_random_without5}}
 We compared the predicted slope from linear regression for the two most
 common plots versus pairs of random plots. We found that the most common
 plots differ from pairs of random plots (Fig.
-\ref{fig:common_vs_random_with5}). For 11 out of the 17 species, the
+\ref{fig:common_vs_random_with5}). For XX out of the XX species, the
 slope from the most common plots were significantly different than
-choosing plots at random. For each case (except one) where the most
-common plots had a significantly different slope, the most common plots
-had a slope coefficient much more negative than random plot slopes.
+choosing plots at random. For XX cases (except XX) where the most common
+plots had a significantly different slope, the most common plots had a
+slope coefficient much more negative than random plot slopes.
 
 We then removed the first five years of data. We hypothesized that this
 would help ameliorate some of the effect of choosing to sample only the
@@ -166,14 +165,14 @@ most common plots. We found that fewer slopes from the common plots were
 statistically different from random slopes, although the effects still
 persisted (Fig. \ref{fig:common_vs_random_without5}).
 
-Alternatively, we can also just examine the species that saw declines
-over time. In Fig. \ref{fig:declining_species} we examine the effect of
-removing the first five years of data for only these declining species.
-We see that removing the first five years of data either had no effect,
-or slightly reduced the difference between choosing random plots and
-choosing the most common plots (Fig. \ref{fig:declining_species}).
+Alternatively, we can also just examine the species with observed
+declines over time. In Fig. \ref{fig:declining_species} we examine the
+effect of removing the first five years of data for only these declining
+species. We see that removing the first five years of data either had no
+effect, or slightly reduced the difference between choosing random plots
+and choosing the most common plots (Fig. \ref{fig:declining_species}).
 
-\begin{figure}[htbp]
+\begin{figure}
 \centering
 \includegraphics{Empirical_Investigation_files/figure-latex/unnamed-chunk-4-1.pdf}
 \caption{This figure denotes the subset of time series where the trend
@@ -190,12 +189,15 @@ most common sites.\label{fig:declining_species}}
 
 \section{Methods: GPDD exploration}
 
-We also examined data from the Global Population Dynamics Database. This
-data does not have replicate plots like the Portal data. Instead, the
+We also examined time series data from different sources incuding the
+Global Population Dynamics Database, compiled by @Keith2015. This data
+does not have replicate plots like the Portal data. Instead, the
 database consists of time series for individual populations. We wanted
-to see the effect of sampling a population starting at a high point. The
-rational being that when initiating a survey you may start with a
-population at high abundance for logistical reasons.
+to see the effect of two different forms of bias sampling. First,
+
+We wanted to see the effect of sampling a population starting at a high
+point. The rational being that when initiating a survey you may start
+with a population at high abundance for logistical reasons.
 
 We selected only time series with 40+ years of data to ensure high
 statistical power (White 2017). Then, for each population time series we
@@ -207,7 +209,7 @@ sampling populations at high abundance.
 
 \section{Results: GPDD exploration}
 
-\begin{figure}[htbp]
+\begin{figure}
 \centering
 \includegraphics{Empirical_Investigation_files/figure-latex/unnamed-chunk-5-1.pdf}
 \caption{Slope estimate from linear regression for biased sample of
@@ -229,7 +231,7 @@ size, autocorrelation generation size) did not strongly predict which
 time series were more likely to be affected by biased sampling of high
 populations (Fig. \ref{fig:GPDD_explanatory}).
 
-\begin{figure}[htbp]
+\begin{figure}
 \centering
 \includegraphics{Empirical_Investigation_files/figure-latex/unnamed-chunk-6-1.pdf}
 \caption{Slope estimate from linear regression for biased sample of
@@ -244,18 +246,22 @@ point.\label{fig:GPDD_explanatory}}
 
 \section{Removing initial years of time series}
 
-\begin{figure}[htbp]
+\begin{figure}
 \centering
 \includegraphics{Empirical_Investigation_files/figure-latex/unnamed-chunk-8-1.pdf}
-\caption{(a) Example time series from the GPDD database. (b) The trend
-in population size (i.e.~the estimated slope coefficient) for different
-numbers of initial years removed from the data. In other words, we
-estimate the trend in abundance from years 1 through 15, then 2 through
-16, and so forth. (c) Frequency of the slopes estimated to fit data in
-(b) for each species (n = 358). A positive value indicates the estimated
-trend in abundance over time becomes less negative when you remove more
-initial years. The dark line is the null distribution generated using
-simulated data.\label{fig:removing_initial_years}}
+\caption{(a) Example time series from the Global Population Dynamics
+Database. (b) The trend in population size (i.e.~the estimated slope
+coefficient) for different numbers of initial years removed from the
+data. In other words, we estimate the trend in abundance from years 1
+through 15, then 2 through 16, and so forth. (c) Frequency of the slopes
+estimated to fit data in (b) for each species (n = 358). A positive
+value indicates the estimated trend in abundance over time becomes less
+negative when you remove more initial years. The dark line is the null
+distribution generated using simulated data. (d) The degree to which
+removing initial years affects the trend estimates. For example, A bias
+of 2.5 would indicate that not removing the first 10 years of data
+increases the estimated slope by 2.5 times.
+\label{fig:removing_initial_years}}
 \end{figure}
 
 We also examined the effect of removing years from the beginning of the
