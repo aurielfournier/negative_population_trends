@@ -1,4 +1,6 @@
 old_scripts/*
 old_code/*
-Literature/*
+Empirical_Analyses/Literature/*
 .DS_Store
+Empirical_Analyses/old_code
+*.Rhistory
