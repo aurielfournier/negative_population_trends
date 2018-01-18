@@ -33,5 +33,8 @@ dat <- rbind(dat2, dat5, dat10,
   filter(bar %in% keepbars) %>%
   mutate(bar = factor(bar, levels=keepbars))
 
+
+
+
 model <- glm(data=dat, beta ~ years * bar)
 summary(model)

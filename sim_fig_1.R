@@ -39,14 +39,19 @@ dat <- rbind(dat2, dat5, dat10,
   mutate(years=factor(years))# %>%
 #  filter(beta>=-400&beta<=400)
 
-b <- ggplot(data=dat, aes(x=years, y=beta))+
+levelskeep <- levels(dat$bar)[3:4]
+
+b <- dat %>% 
+        filter(bar %in% levelskeep) %>% 
+  ggplot(aes(x=years, y=beta))+
   geom_boxplot()+
   theme_krementz()+
   geom_hline(aes(yintercept=0))+
   ylab("Regression Slope")+
   xlab("Length of Time \nSeries (years)")+
   facet_wrap(~bar)+
-  ylim(-500,500)
+  ylim(-500,500)+
+  theme(strip.text = element_blank())
 
 
 datpercent <- dat %>%
@@ -54,21 +59,22 @@ datpercent <- dat %>%
               group_by(years, bar) %>%
               summarize(total = n(),
                         declining = sum(negative),
-                        percent = declining/total)
+                        percent = declining/total) %>%
+              
 
-a <- ggplot(data=datpercent, aes(x=years, y=percent))+
+a <- datpercent %>% 
+  filter(bar %in% levelskeep) %>% 
+  ggplot(aes(x=years, y=percent))+
       geom_col()+
-      ylab("Percent Declines \nDetected")+
+      ylab("Percent Declines")+
       theme_krementz()+
       xlab("Length of Time \nSeries (Years)")+
       ylim(0,1)+
-      facet_wrap(~bar)
+      facet_wrap(~bar) +
+      theme(axis.title.x = element_blank(),
+            axis.text.x = element_blank(),
+            axis.ticks.x = element_blank())
 
-ggsave(a, file="~/negative_population_trends/figure1.jpeg", width=30, height=10, units="cm")
-
-ggsave(b, file="~/negative_population_trends/figure2.jpeg", width=30, height=10, units="cm")
-
-
-jpeg(file="~/negative_population_trends/sim_fig_combined.jpeg", width=20, height=10, units="cm", res=300)
-cowplot::plot_grid(a,b,nrow=1)
+jpeg(file="~/negative_population_trends/sim_fig_combined.jpeg", width=25, height=15, units="cm", res=300)
+cowplot::plot_grid(a,b,nrow=2, align = "h")
 dev.off()
