@@ -59,11 +59,16 @@ datpercent <- dat %>%
               group_by(years, bar) %>%
               summarize(total = n(),
                         declining = sum(negative),
-                        percent = declining/total) %>%
+                        percent = declining/total) 
               
 
 a <- datpercent %>% 
   filter(bar %in% levelskeep) %>% 
+  mutate(bar = as.character(bar),
+         bar = ifelse(bar=="True Population Size, 2 Highest Populations",
+                      "Two Largest Populations, Year 1", bar),
+         bar = ifelse(bar=="True Population Size, 2 Random Populations",
+                      "Two Random Populations, Year 1", bar)) %>% 
   ggplot(aes(x=years, y=percent))+
       geom_col()+
       ylab("Percent Declines")+
