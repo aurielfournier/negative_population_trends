@@ -1,10 +1,3 @@
----
-output:
-  pdf_document: default
----
-
-```{r functions, warning=FALSE, error=FALSE, include=FALSE, eval=FALSE}
-
 #
 # Generate twenty populations
 #
@@ -21,17 +14,26 @@ library(tidyverse)
 
 generate_species <- function(nyears=100, mu=1000,rho=0.5,CV.=0.2, spp.=20) {
   sim.years <- nyears+10
+  
   ln_SD <- sqrt(log(CV.^2+1))  #SD parameter of lognormal distribution with desired variability
+  
   ln_SD_e <- sqrt(ln_SD^2/(1-rho^2))  #SD for first value
-  time_series_temp <- matrix(rnorm(mean=0,sd=1,n=sim.years*spp.),ncol=spp., nrow=sim.years)
+  
+  time_series_temp <- matrix(rnorm(mean=0,sd=1,n=sim.years*spp.),
+                             ncol=spp., nrow=sim.years)
+  
   time_series <- matrix(nrow=sim.years,ncol=spp.)
   
   time_series[1,] <- ln_SD_e*time_series_temp[1,]
+  
   for (i in 2:(sim.years)) {
     time_series[i,] <- rho*time_series[(i-1),]+time_series_temp[i,]*ln_SD
   }
+  
   time_series <- time_series + log(mu) - 0.5*ln_SD_e^2
+  
   time_series <- exp(time_series)
+  
   return(time_series[-c(1:10),])
 }
 
@@ -53,9 +55,12 @@ realtrend <- function(time_series, spp.=spp, numyears=100){
   highestspecies <-  data.frame(one, two, year)
   
   highestspecies <- highestspecies[1:numyears,]
-               
+  
   ## Creates empty object to put results into
-  values <- data.frame(beta=c(NA,NA),SE=c(NA,NA),pvalue=c(NA,NA), rsquared=c(NA,NA))
+  values <- data.frame(beta=c(NA,NA),
+                       SE=c(NA,NA),
+                       pvalue=c(NA,NA), 
+                       rsquared=c(NA,NA))
   
   ## run two models, one on the first species, one on the second
   speciesmodel1 <- lm(data=highestspecies, one ~ year)
@@ -90,7 +95,10 @@ realtrend <- function(time_series, spp.=spp, numyears=100){
   randomspecies <- randomspecies[1:numyears,]
   
   ## Creates empty object to put results into
-  values <- data.frame(beta=c(NA,NA),SE=c(NA,NA),pvalue=c(NA,NA), rsquared=c(NA,NA))
+  values <- data.frame(beta=c(NA,NA),
+                       SE=c(NA,NA),
+                       pvalue=c(NA,NA), 
+                       rsquared=c(NA,NA))
   
   ## run two models, one on the first species, one on the second
   speciesmodel1 <- lm(data=randomspecies, one ~ year)
@@ -121,7 +129,10 @@ realtrend <- function(time_series, spp.=spp, numyears=100){
   allspecies <-  data.frame(time_series, year)
   
   ## Creates empty object to put results into
-  values <- data.frame(beta=rep(NA,times=spp.),SE=NA,pvalue=NA, rsquared=NA)
+  values <- data.frame(beta=rep(NA,times=spp.),
+                       SE=NA,
+                       pvalue=NA, 
+                       rsquared=NA)
   
   for(column in 1:spp.){
     ## run two models, one on the first species, one on the second
@@ -166,15 +177,15 @@ samplingeffortwitherror <- function(time_series, freq=NA, sd=0.1, numyears=100){
   twospecies <- twospecies[1:numyears,]
   
   if(numyears>=5){
-        ## If we have set freq = to some single value, this if statement runs
-        if(length(freq)==1){
-          sampled_data <- twospecies[seq(from=1, to=nrow(time_series), by=freq),]
-        }
-        
-        ## if freq is a vector of years, than this one runs
-        if(length(freq)>1){
-          sampled_data <- twospecies[freq,]
-        }
+    ## If we have set freq = to some single value, this if statement runs
+    if(length(freq)==1){
+      sampled_data <- twospecies[seq(from=1, to=nrow(time_series), by=freq),]
+    }
+    
+    ## if freq is a vector of years, than this one runs
+    if(length(freq)>1){
+      sampled_data <- twospecies[freq,]
+    }
   }
   
   ## if we have <5 years to sample from, we reset freq to 1 and sample each year
@@ -186,7 +197,8 @@ samplingeffortwitherror <- function(time_series, freq=NA, sd=0.1, numyears=100){
   ## This takes the years we just sampled, and applies an error term
   ## since its pretty hard to actually estimate the population
   sdata <- list()
-  sampled_data[,1:2] <-  sampled_data[,1:2] * exp(rnorm(1, mean=0, sd=sd)-0.5*sd^2)
+  sampled_data[,1:2] <-  sampled_data[,1:2] * exp(rnorm(1, mean=0, 
+                                                        sd=sd)-0.5*sd^2)
   sdata[["sampled_data_highest"]] <- sampled_data
   
   ####
@@ -233,7 +245,9 @@ samplingeffortwitherror <- function(time_series, freq=NA, sd=0.1, numyears=100){
   
   ## This takes the years we just sampled, and applies an error term
   ## since its pretty hard to actually estimate the population
-  sampled_data[,1:2] <-  sampled_data[,1:2] * exp(rnorm(1, mean=0, sd=sd)-0.5*sd^2)
+  sampled_data[,1:2] <-  sampled_data[,1:2] * exp(rnorm(1, mean=0, 
+                                                        sd=sd)-0.5*sd^2)
+
   sdata[["sampled_data_random"]] <- sampled_data
   
   return(sdata)
@@ -334,27 +348,49 @@ onesimulation <- function(freq=NA, spp.=20, CV.=0.2, numyears=100){
 
 
 manysimulations <- function(sims=1000, freq=NA, spp=20, CV=0.2, numyears=100){
-
+  
   ## Create empty objects to store results in
   ## sampledata is a list because the number of rows could vary from sim to sim
-  real_values_highest <- data.frame(beta=rep(NA,sims*2),SE=rep(NA,sims*2),pvalue=rep(NA,sims*2),rsquared=rep(NA,sims*2))
-  real_values_random <- data.frame(beta=rep(NA,sims*2),SE=rep(NA,sims*2),pvalue=rep(NA,sims*2),rsquared=rep(NA,sims*2))
+  real_values_highest <- data.frame(beta=rep(NA,sims*2),
+                                    SE=rep(NA,sims*2),
+                                    pvalue=rep(NA,sims*2),
+                                    rsquared=rep(NA,sims*2))
+  
+  real_values_random <- data.frame(beta=rep(NA,sims*2),
+                                   SE=rep(NA,sims*2),
+                                   pvalue=rep(NA,sims*2),
+                                   rsquared=rep(NA,sims*2))
+  
   real_values_all_pops <- list()
-  sampled_values_highest <- data.frame(beta=rep(NA,sims*2),SE=rep(NA,sims*2),pvalue=rep(NA,sims*2),rsquared=rep(NA,sims*2))
-  sampled_values_random <- data.frame(beta=rep(NA,sims*2),SE=rep(NA,sims*2),pvalue=rep(NA,sims*2),rsquared=rep(NA,sims*2))
-  real_data_highest <- as.data.frame(matrix(ncol=(2*sims), nrow=numyears))
-  real_data_random <- as.data.frame(matrix(ncol=(2*sims), nrow=numyears))
-
-
-    
+  
+  sampled_values_highest <- data.frame(beta=rep(NA,sims*2),
+                                       SE=rep(NA,sims*2),
+                                       pvalue=rep(NA,sims*2),
+                                       rsquared=rep(NA,sims*2))
+  
+  sampled_values_random <- data.frame(beta=rep(NA,sims*2),
+                                      SE=rep(NA,sims*2),
+                                      pvalue=rep(NA,sims*2),
+                                      rsquared=rep(NA,sims*2))
+  
+  real_data_highest <- as.data.frame(matrix(ncol=(2*sims), 
+                                            nrow=numyears))
+  
+  real_data_random <- as.data.frame(matrix(ncol=(2*sims), 
+                                           nrow=numyears))
+  
   sampled_data_highest <- list()
+  
   sampled_data_random <- list()
+  
   twenty_species <- list()
   
   ## Runs through the onesimulation function sims number of times
   ## stores the various results in the different objects
   for(i in seq(1,(sims*2),by=2)){
-    dd <- onesimulation(freq=freq, spp.=spp, CV.=CV, numyears=numyears)
+    dd <- onesimulation(freq=freq, spp.=spp, 
+                        CV.=CV, numyears=numyears)
+    
     real_values_highest[i:(i+1),] <- dd$real_values_highest
     real_values_random[i:(i+1),] <- dd$real_values_random
     real_values_all_pops[[i]] <- dd$real_values_all_pops
@@ -362,12 +398,17 @@ manysimulations <- function(sims=1000, freq=NA, spp=20, CV=0.2, numyears=100){
     sampled_values_random[i:(i+1),] <- dd$sampled_values_random
     
     real_data_highest[,i:(i+1)] <- dd$real_data_highest[,1:2]
-    
     real_data_random[,i:(i+1)] <- dd$real_data_random[,1:2]
     sampled_data_highest[[i]] <- dd$sampled_data_highest[,1:2]
     sampled_data_random[[i]] <- dd$sampled_data_random[,1:2]
+    
     colnames(dd$twenty_species) <- paste0("spp",1:spp)
-    t_species <- data.frame(dd$twenty_species) %>% mutate(year=1:100) %>% gather("variable","value", -year) %>% mutate(sim=i)
+    
+    t_species <- data.frame(dd$twenty_species) %>% 
+                    mutate(year=1:100) %>% 
+                    gather("variable","value", -year) %>% 
+                    mutate(sim=i)
+    
     twenty_species[[i]] <- t_species
   }
   
@@ -388,9 +429,7 @@ manysimulations <- function(sims=1000, freq=NA, spp=20, CV=0.2, numyears=100){
   
 }
 
-```
 
-```{r Panel1, include=FALSE, eval=FALSE}
 year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=2)
 save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears2.Rdata")
 
@@ -460,5 +499,4 @@ save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears100.R
 year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=100)
 save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears100.Rdata")
 
-```
 

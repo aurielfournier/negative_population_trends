@@ -1,43 +1,36 @@
 library(ggplot2)
 library(tidyverse)
-library(auriel)
+
 truebr = 1
 br = 3
 
 dat2 <- read.csv("10ksims_freq1_spp20_nyears2.csv") %>%
-  #filter(bar==br|bar==truebr) %>% 
   mutate(bar = factor(bar),
          years=2)
 
 dat5 <- read.csv("10ksims_freq1_spp20_nyears5.csv") %>%
-  #filter(bar==br|bar==truebr) %>% 
   mutate(bar = factor(bar),
          years=5)
 
 dat10 <- read.csv("10ksims_freq1_spp20_nyears10.csv") %>%
-  #filter(bar==br|bar==truebr) %>% 
   mutate(bar = factor(bar),
          years=10)
 
 dat20 <- read.csv("10ksims_freq1_spp20_nyears20.csv") %>%
-  #filter(bar==br|bar==truebr) %>% 
   mutate(bar = factor(bar),
          years=20)
 
 dat50 <- read.csv("10ksims_freq1_spp20_nyears50.csv") %>%
-  #filter(bar==br|bar==truebr) %>% 
   mutate(bar = factor(bar),
          years=50)
 
 dat100 <- read.csv("10ksims_freq1_spp20_nyears100.csv") %>%
-  #filter(bar==br|bar==truebr) %>% 
   mutate(bar = factor(bar),
          years=100)
 
 dat <- rbind(dat2, dat5, dat10, 
              dat20, dat50, dat100) %>%
-  mutate(years=factor(years))# %>%
-#  filter(beta>=-400&beta<=400)
+  mutate(years=factor(years))
 
 levelskeep <- levels(dat$bar)[3:4]
 
@@ -45,13 +38,25 @@ b <- dat %>%
         filter(bar %in% levelskeep) %>% 
   ggplot(aes(x=years, y=beta))+
   geom_boxplot()+
-  theme_krementz()+
   geom_hline(aes(yintercept=0))+
   ylab("Regression Slope")+
   xlab("Length of Time \nSeries (years)")+
   facet_wrap(~bar)+
   ylim(-500,500)+
-  theme(strip.text = element_blank())
+  theme(axis.text.x = element_text(size = 12, color = "black"), 
+        axis.text.y = element_text(size = 12, color = "black"), 
+        axis.title.y = element_text(size = 20), 
+        plot.background = element_blank(), 
+        panel.border = element_blank(), 
+        panel.grid.major = element_line(colour = NA), 
+        panel.grid.minor = element_line(colour = NA), 
+        title = element_text(size = 20), 
+        panel.background = element_rect(fill = "white"),
+        axis.line.x = element_line(colour = "black"), 
+        axis.line.y = element_line(colour = "black"), 
+        strip.background = element_rect(fill = "white", 
+                                       color = "black"), 
+        strip.text = element_blank())
 
 
 datpercent <- dat %>%
@@ -72,13 +77,24 @@ a <- datpercent %>%
   ggplot(aes(x=years, y=percent))+
       geom_col()+
       ylab("Proportion Declining")+
-      theme_krementz()+
       xlab("Length of Time \nSeries (Years)")+
       ylim(0,1)+
       facet_wrap(~bar) +
       theme(axis.title.x = element_blank(),
             axis.text.x = element_blank(),
-            axis.ticks.x = element_blank())
+            axis.ticks.x = element_blank(),
+            axis.text.y = element_text(size = 12, color = "black"), 
+            axis.title.y = element_text(size = 20), 
+            plot.background = element_blank(), 
+            panel.border = element_blank(),
+            panel.grid.major = element_line(colour = NA), 
+            panel.grid.minor = element_line(colour = NA), 
+            title = element_text(size = 20), 
+            panel.background = element_rect(fill = "white"), 
+            axis.line.x = element_line(colour = "black"), 
+            axis.line.y = element_line(colour = "black"), 
+            strip.background = element_rect(fill="white",color="black"),
+            strip.text = element_text(size = 15))
 
 jpeg(file="~/negative_population_trends/sim_fig_combined.jpeg", width=25, height=15, units="cm", res=300)
 cowplot::plot_grid(a,b,nrow=2, align = "h")
