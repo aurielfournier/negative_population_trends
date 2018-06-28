@@ -52,9 +52,13 @@ realtrend <- function(time_series, spp.=spp, numyears=100){
   year = 1:nrow(time_series)
   
   ## puts the three vectors into one data frame, ready to be sampled from  
-  highestspecies <-  data.frame(one, two, year)
+  highestspecies <-  data.frame(one, two, year) %>%
+                        mutate(logone = log(one),
+                               logtwo = log(two))
   
   highestspecies <- highestspecies[1:numyears,]
+  
+
   
   ## Creates empty object to put results into
   values <- data.frame(beta=c(NA,NA),
@@ -62,9 +66,16 @@ realtrend <- function(time_series, spp.=spp, numyears=100){
                        pvalue=c(NA,NA), 
                        rsquared=c(NA,NA))
   
+  logvalues <- data.frame(beta=c(NA,NA),
+                         SE=c(NA,NA),
+                         pvalue=c(NA,NA), 
+                         rsquared=c(NA,NA))
+  
   ## run two models, one on the first species, one on the second
   speciesmodel1 <- lm(data=highestspecies, one ~ year)
   speciesmodel2 <- lm(data=highestspecies, two ~ year)
+  logspeciesmodel1 <- lm(data=highestspecies, logone ~ year)
+  logspeciesmodel2 <- lm(data=highestspecies, logtwo ~ year)
   
   ## extract the beta coefficient, pvalue and rsquared for the first species
   values[1,1] <- speciesmodel1$coefficients[2]
@@ -72,15 +83,26 @@ realtrend <- function(time_series, spp.=spp, numyears=100){
   values[1,3] <- summary(speciesmodel1)$coefficients[,4][2]
   values[1,4] <- summary(speciesmodel1)$r.squared
   
+  logvalues[1,1] <- logspeciesmodel1$coefficients[2]
+  logvalues[1,2] <- summary(logspeciesmodel1)$coefficients[,2][2]
+  logvalues[1,3] <- summary(logspeciesmodel1)$coefficients[,4][2]
+  logvalues[1,4] <- summary(logspeciesmodel1)$r.squared
+  
   ## extract the beta coefficient, pvalue and rsquared for the second species
   values[2,1] <- speciesmodel2$coefficients[2]
   values[2,2] <- summary(speciesmodel2)$coefficients[,2][2]
   values[2,3] <- summary(speciesmodel2)$coefficients[,4][2]
   values[2,4] <- summary(speciesmodel2)$r.squared
   
+  logvalues[2,1] <- logspeciesmodel1$coefficients[2]
+  logvalues[2,2] <- summary(logspeciesmodel1)$coefficients[,2][2]
+  logvalues[2,3] <- summary(logspeciesmodel1)$coefficients[,4][2]
+  logvalues[2,4] <- summary(logspeciesmodel1)$r.squared
+  
   ## puts everything in a list to be output
   realstuff <- list()
-  realstuff[["real_values_highest"]] <- values
+  realstuff[["real_values_highest_linear"]] <- values
+  realstuff[["real_values_highest_log"]] <- logvalues
   realstuff[["real_data_highest"]] <- highestspecies
   
   ###########
@@ -90,7 +112,9 @@ realtrend <- function(time_series, spp.=spp, numyears=100){
   year = 1:nrow(time_series)
   
   ## puts the three vectors into one data frame, ready to be sampled from  
-  randomspecies <-  data.frame(one, two, year)
+  randomspecies <-  data.frame(one, two, year) %>%
+                      mutate(logone = log(one),
+                             logtwo= log(two))
   
   randomspecies <- randomspecies[1:numyears,]
   
@@ -100,9 +124,16 @@ realtrend <- function(time_series, spp.=spp, numyears=100){
                        pvalue=c(NA,NA), 
                        rsquared=c(NA,NA))
   
+  logvalues <- data.frame(beta=c(NA,NA),
+                       SE=c(NA,NA),
+                       pvalue=c(NA,NA), 
+                       rsquared=c(NA,NA))
+  
   ## run two models, one on the first species, one on the second
   speciesmodel1 <- lm(data=randomspecies, one ~ year)
   speciesmodel2 <- lm(data=randomspecies, two ~ year)
+  logspeciesmodel1 <- lm(data=randomspecies, logone ~ year)
+  logspeciesmodel2 <- lm(data=randomspecies, logtwo ~ year)
   
   ## extract the beta coefficient, pvalue and rsquared for the first species
   values[1,1] <- speciesmodel1$coefficients[2]
@@ -110,14 +141,25 @@ realtrend <- function(time_series, spp.=spp, numyears=100){
   values[1,3] <- summary(speciesmodel1)$coefficients[,4][2]
   values[1,4] <- summary(speciesmodel1)$r.squared
   
+  logvalues[1,1] <- logspeciesmodel1$coefficients[2]
+  logvalues[1,2] <- summary(logspeciesmodel1)$coefficients[,2][2]
+  logvalues[1,3] <- summary(logspeciesmodel1)$coefficients[,4][2]
+  logvalues[1,4] <- summary(logspeciesmodel1)$r.squared
+  
   ## extract the beta coefficient, pvalue and rsquared for the second species
   values[2,1] <- speciesmodel2$coefficients[2]
   values[2,2] <- summary(speciesmodel2)$coefficients[,2][2]
   values[2,3] <- summary(speciesmodel2)$coefficients[,4][2]
   values[2,4] <- summary(speciesmodel2)$r.squared
   
+  logvalues[2,1] <- logspeciesmodel1$coefficients[2]
+  logvalues[2,2] <- summary(logspeciesmodel1)$coefficients[,2][2]
+  logvalues[2,3] <- summary(logspeciesmodel1)$coefficients[,4][2]
+  logvalues[2,4] <- summary(logspeciesmodel1)$r.squared
+  
   ## puts everything in a list to be output
-  realstuff[["real_values_random"]] <- values
+  realstuff[["real_values_random_linear"]] <- values
+  realstuff[["real_values_random_log"]] <- logvalues
   realstuff[["real_data_random"]] <- randomspecies
   
   ########
@@ -126,7 +168,13 @@ realtrend <- function(time_series, spp.=spp, numyears=100){
   
   ## finds the two species with the highest populations in year 1 
   ## puts the three vectors into one data frame, ready to be sampled from  
-  allspecies <-  data.frame(time_series, year)
+  allspecies <-  data.frame(time_series, year) 
+  
+  logallspecies <- log(allspecies[,1:spp.])
+  
+  colnames(logallspecies) <- paste0("logX",1:spp.)
+  
+  allspecies <- bind_cols(allspecies, logallspecies)
   
   ## Creates empty object to put results into
   values <- data.frame(beta=rep(NA,times=spp.),
@@ -134,185 +182,40 @@ realtrend <- function(time_series, spp.=spp, numyears=100){
                        pvalue=NA, 
                        rsquared=NA)
   
+  logvalues <- data.frame(beta=rep(NA,times=spp.),
+                       SE=NA,
+                       pvalue=NA, 
+                       rsquared=NA)
+  
   for(column in 1:spp.){
     ## run two models, one on the first species, one on the second
     speciesmodel1 <- lm(allspecies[,column] ~ allspecies$year)
+    logspeciesmodel1 <- lm(allspecies[,(column+21)] ~ allspecies$year)
     
     ## extract the beta coefficient, pvalue and rsquared for the first species
     values[column,1] <- speciesmodel1$coefficients[2]
     values[column,2] <- summary(speciesmodel1)$coefficients[,2][2]
     values[column,3] <- summary(speciesmodel1)$coefficients[,4][2]
     values[column,4] <- summary(speciesmodel1)$r.squared
+    
+    logvalues[column,1] <- logspeciesmodel1$coefficients[2]
+    logvalues[column,2] <- summary(logspeciesmodel1)$coefficients[,2][2]
+    logvalues[column,3] <- summary(logspeciesmodel1)$coefficients[,4][2]
+    logvalues[column,4] <- summary(logspeciesmodel1)$r.squared
   }  
   
   ## puts everything in a list to be output
-  realstuff[["real_values_all_pops"]] <- values
+  realstuff[["real_values_all_pops_linear"]] <- values
+  realstuff[["real_values_all_pops_log"]] <- logvalues
   return(realstuff)
 }
 
 
-##################
+#########################
 #
-# sample the real population with some frequency of sampling effort with error
+# All Together Now
 #
-##################
-
-samplingeffortwitherror <- function(time_series, freq=NA, sd=0.1, numyears=100){
-  
-  ## The default is to have freq=NA, which means that the function 
-  ## will randomly pull a random set of years to sample on
-  ## This checks to see if freq=NA, and if so, does that
-  ## If we set freq = to some number it will bipass that and use that instead
-  if(is.na(freq[1])){
-    freq <- sort(base::sample(1:100, sample(1:60, 1), replace=FALSE))
-  }
-  
-  ## finds the two species with the highest populations in year 1 
-  one <- time_series[,which(time_series[1,]==sort(time_series[1,], TRUE)[1])]
-  two <- time_series[,which(time_series[1,]==sort(time_series[1,], TRUE)[2])]
-  year = 1:nrow(time_series)
-  
-  ## puts the three vectors into one data frame, ready to be sampled from  
-  twospecies <-  data.frame(one, two, year)
-  twospecies <- twospecies[1:numyears,]
-  
-  if(numyears>=5){
-    ## If we have set freq = to some single value, this if statement runs
-    if(length(freq)==1){
-      sampled_data <- twospecies[seq(from=1, to=nrow(time_series), by=freq),]
-    }
-    
-    ## if freq is a vector of years, than this one runs
-    if(length(freq)>1){
-      sampled_data <- twospecies[freq,]
-    }
-  }
-  
-  ## if we have <5 years to sample from, we reset freq to 1 and sample each year
-  if(numyears<5){
-    freq = 1
-    sampled_data <- twospecies[seq(from=1, to=nrow(time_series), by=freq),]
-  }
-  
-  ## This takes the years we just sampled, and applies an error term
-  ## since its pretty hard to actually estimate the population
-  sdata <- list()
-  sampled_data[,1:2] <-  sampled_data[,1:2] * exp(rnorm(1, mean=0, 
-                                                        sd=sd)-0.5*sd^2)
-  sdata[["sampled_data_highest"]] <- sampled_data
-  
-  ####
-  #
-  # two randomly selected
-  #
-  ####
-  
-  ## The default is to have freq=NA, which means that the function 
-  ## will randomly pull a random set of years to sample on
-  ## This checks to see if freq=NA, and if so, does that
-  ## If we set freq = to some number it will bipass that and use that instead
-  if(is.na(freq[1])){
-    freq <- sort(base::sample(1:100, sample(1:60, 1), replace=FALSE))
-  }
-  
-  ## grabs two species at random
-  one <- time_series[,base::sample(1:ncol(time_series),1)]
-  two <- time_series[,base::sample(1:ncol(time_series),1)]
-  year = 1:nrow(time_series)
-  
-  ## puts the three vectors into one data frame, ready to be sampled from  
-  twospecies <-  data.frame(one, two, year)
-  twospecies <- twospecies[1:numyears,]
-  
-  ## if we have more then 5 years to sample from, we sample as we normally would
-  if(numyears>=5){
-    ## If we have set freq = to some single value, this if statement runs
-    if(length(freq)==1){
-      sampled_data <- twospecies[seq(from=1, to=nrow(time_series), by=freq),]
-    }
-    
-    ## if freq is a vector of years, than this one runs
-    if(length(freq)>1){
-      sampled_data <- twospecies[freq,]
-    }
-  }
-  
-  ## if we have <5 years to sample from, we reset freq to 1 and sample each year
-  if(numyears<5){
-    freq = 1
-    sampled_data <- twospecies[seq(from=1, to=nrow(time_series), by=freq),]
-  }
-  
-  ## This takes the years we just sampled, and applies an error term
-  ## since its pretty hard to actually estimate the population
-  sampled_data[,1:2] <-  sampled_data[,1:2] * exp(rnorm(1, mean=0, 
-                                                        sd=sd)-0.5*sd^2)
-
-  sdata[["sampled_data_random"]] <- sampled_data
-  
-  return(sdata)
-}
-
-##################
-#
-#  What trend do we see in the sampled data? 
-#
-##################
-
-sampletrend <- function(sampled_data){
-  
-  ##
-  # Two Highest
-  ##
-  
-  ## Create empty object to store results in
-  sampled_values <- data.frame(beta=c(NA,NA),SE=c(NA,NA),pvalue=c(NA,NA),rsquared=c(NA,NA))
-  
-  ## run two models, one on the first species, one on the second
-  speciesmodel1 <- lm(data=sampled_data$sampled_data_highest, one ~ year)
-  speciesmodel2 <- lm(data=sampled_data$sampled_data_highest, two ~ year)
-  
-  ## extract the beta coefficient, pvalue and rsquared for the first species
-  sampled_values[1,1] <- speciesmodel1$coefficients[2]
-  sampled_values[1,2] <- summary(speciesmodel1)$coefficients[,2][2]
-  sampled_values[1,3] <- summary(speciesmodel1)$coefficients[,4][2]
-  sampled_values[1,4] <- summary(speciesmodel1)$r.squared
-  
-  ## extract the beta coefficient, pvalue and rsquared for the second species
-  sampled_values[2,1] <- speciesmodel2$coefficients[2]
-  sampled_values[2,2] <- summary(speciesmodel2)$coefficients[,2][2]
-  sampled_values[2,3] <- summary(speciesmodel2)$coefficients[,4][2]
-  sampled_values[2,4] <- summary(speciesmodel2)$r.squared
-  
-  sampled_trend <- list()
-  sampled_trend[["sampled_trend_highest"]] <- sampled_values
-  ##
-  # Two Random
-  ## 
-  
-  ## Create empty object to store results in
-  sampled_values <- data.frame(beta=c(NA,NA),SE=c(NA,NA),pvalue=c(NA,NA),rsquared=c(NA,NA))
-  
-  ## run two models, one on the first species, one on the second
-  speciesmodel1 <- lm(data=sampled_data$sampled_data_random, one ~ year)
-  speciesmodel2 <- lm(data=sampled_data$sampled_data_random, two ~ year)
-  
-  ## extract the beta coefficient, pvalue and rsquared for the first species
-  sampled_values[1,1] <- speciesmodel1$coefficients[2]
-  sampled_values[1,2] <- summary(speciesmodel1)$coefficients[,2][2]
-  sampled_values[1,3] <- summary(speciesmodel1)$coefficients[,4][2]
-  sampled_values[1,4] <- summary(speciesmodel1)$r.squared
-  
-  ## extract the beta coefficient, pvalue and rsquared for the second species
-  sampled_values[2,1] <- speciesmodel2$coefficients[2]
-  sampled_values[2,2] <- summary(speciesmodel2)$coefficients[,2][2]
-  sampled_values[2,3] <- summary(speciesmodel2)$coefficients[,4][2]
-  sampled_values[2,4] <- summary(speciesmodel2)$r.squared
-  
-  sampled_trend[["sampled_trend_random"]] <- sampled_values
-  
-  return(sampled_trend)
-}
+#########################
 
 
 onesimulation <- function(freq=NA, spp.=20, CV.=0.2, numyears=100){
@@ -323,24 +226,17 @@ onesimulation <- function(freq=NA, spp.=20, CV.=0.2, numyears=100){
   ## Figure out the 'real trend'
   rdat <- realtrend(time_series, spp.=spp., numyears=numyears)
   
-  ## Sample the real population data, with some error
-  sampled_data <- samplingeffortwitherror(time_series, freq=freq, sd=0.1, numyears=numyears)
-  
-  ## figure out what the trend is for the sampled_data
-  svalues <- sampletrend(sampled_data)
-  
   ## output everything into one master list
   outputs <- list()
   outputs[["twenty_species"]] <- time_series
-  outputs[["real_values_highest"]] <- rdat$real_values_highest
-  outputs[["real_values_random"]] <- rdat$real_values_random
+  outputs[["real_values_highest_linear"]] <- rdat$real_values_highest_linear
+  outputs[["real_values_highest_log"]] <- rdat$real_values_highest_log
+  outputs[["real_values_random_log"]] <- rdat$real_values_random_log
+  outputs[["real_values_random_linear"]] <- rdat$real_values_random_linear
   outputs[["real_data_highest"]] <- rdat$real_data_highest
   outputs[["real_data_random"]] <- rdat$real_data_random
-  outputs[["real_values_all_pops"]] <- rdat$real_values_all_pops
-  outputs[["sampled_data_highest"]] <- sampled_data$sampled_data_highest
-  outputs[["sampled_data_random"]] <- sampled_data$sampled_data_random
-  outputs[["sampled_values_highest"]] <- svalues$sampled_trend_highest
-  outputs[["sampled_values_random"]] <- svalues$sampled_trend_random
+  outputs[["real_values_all_pops_linear"]] <- rdat$real_values_all_pops_linear
+  outputs[["real_values_all_pops_log"]] <- rdat$real_values_all_pops_log
   return(outputs)
 }
 
@@ -351,37 +247,36 @@ manysimulations <- function(sims=1000, freq=NA, spp=20, CV=0.2, numyears=100){
   
   ## Create empty objects to store results in
   ## sampledata is a list because the number of rows could vary from sim to sim
-  real_values_highest <- data.frame(beta=rep(NA,sims*2),
+  real_values_highest_linear <- data.frame(beta=rep(NA,sims*2),
                                     SE=rep(NA,sims*2),
                                     pvalue=rep(NA,sims*2),
                                     rsquared=rep(NA,sims*2))
   
-  real_values_random <- data.frame(beta=rep(NA,sims*2),
+  real_values_highest_log <- data.frame(beta=rep(NA,sims*2),
+                                           SE=rep(NA,sims*2),
+                                           pvalue=rep(NA,sims*2),
+                                           rsquared=rep(NA,sims*2))
+  
+  real_values_random_linear <- data.frame(beta=rep(NA,sims*2),
                                    SE=rep(NA,sims*2),
                                    pvalue=rep(NA,sims*2),
                                    rsquared=rep(NA,sims*2))
   
-  real_values_all_pops <- list()
+  real_values_random_log <- data.frame(beta=rep(NA,sims*2),
+                                   SE=rep(NA,sims*2),
+                                   pvalue=rep(NA,sims*2),
+                                   rsquared=rep(NA,sims*2))
   
-  sampled_values_highest <- data.frame(beta=rep(NA,sims*2),
-                                       SE=rep(NA,sims*2),
-                                       pvalue=rep(NA,sims*2),
-                                       rsquared=rep(NA,sims*2))
   
-  sampled_values_random <- data.frame(beta=rep(NA,sims*2),
-                                      SE=rep(NA,sims*2),
-                                      pvalue=rep(NA,sims*2),
-                                      rsquared=rep(NA,sims*2))
+  real_values_all_pops_linear <- list()
+
+  real_values_all_pops_log <- list()
   
   real_data_highest <- as.data.frame(matrix(ncol=(2*sims), 
                                             nrow=numyears))
   
   real_data_random <- as.data.frame(matrix(ncol=(2*sims), 
                                            nrow=numyears))
-  
-  sampled_data_highest <- list()
-  
-  sampled_data_random <- list()
   
   twenty_species <- list()
   
@@ -391,16 +286,14 @@ manysimulations <- function(sims=1000, freq=NA, spp=20, CV=0.2, numyears=100){
     dd <- onesimulation(freq=freq, spp.=spp, 
                         CV.=CV, numyears=numyears)
     
-    real_values_highest[i:(i+1),] <- dd$real_values_highest
-    real_values_random[i:(i+1),] <- dd$real_values_random
-    real_values_all_pops[[i]] <- dd$real_values_all_pops
-    sampled_values_highest[i:(i+1),] <- dd$sampled_values_highest
-    sampled_values_random[i:(i+1),] <- dd$sampled_values_random
-    
+    real_values_highest_log[i:(i+1),] <- dd$real_values_highest_log
+    real_values_highest_linear[i:(i+1),] <- dd$real_values_highest_linear
+    real_values_random_log[i:(i+1),] <- dd$real_values_random_log
+    real_values_random_linear[i:(i+1),] <- dd$real_values_random_linear
+    real_values_all_pops_log[[i]] <- dd$real_values_all_pops_log
+    real_values_all_pops_linear[[i]] <- dd$real_values_all_pops_linear
     real_data_highest[,i:(i+1)] <- dd$real_data_highest[,1:2]
     real_data_random[,i:(i+1)] <- dd$real_data_random[,1:2]
-    sampled_data_highest[[i]] <- dd$sampled_data_highest[,1:2]
-    sampled_data_random[[i]] <- dd$sampled_data_random[,1:2]
     
     colnames(dd$twenty_species) <- paste0("spp",1:spp)
     
@@ -414,15 +307,14 @@ manysimulations <- function(sims=1000, freq=NA, spp=20, CV=0.2, numyears=100){
   
   ## load everything up into one master list to be outputted
   outputs <- list()
-  outputs[["real_values_highest"]] <- real_values_highest
-  outputs[["real_values_random"]] <- real_values_random
-  outputs[["real_values_all_pops"]] <- do.call(rbind, real_values_all_pops)
-  outputs[["sampled_values_highest"]] <- sampled_values_highest
-  outputs[["sampled_values_random"]] <- sampled_values_random
+  outputs[["real_values_highest_log"]] <- real_values_highest_log
+  outputs[["real_values_highest_linear"]] <- real_values_highest_linear
+  outputs[["real_values_random_log"]] <- real_values_random_log
+  outputs[["real_values_random_linear"]] <- real_values_random_linear
+  outputs[["real_values_all_pops_log"]] <- do.call(rbind, real_values_all_pops_log)
+  outputs[["real_values_all_pops_linear"]] <- do.call(rbind, real_values_all_pops_linear)
   outputs[["real_data_highest"]] <- real_data_highest
   outputs[["real_data_random"]] <- real_data_random
-  outputs[["sampled_data_highest"]] <- sampled_data_highest 
-  outputs[["sampled_data_random"]] <- sampled_data_random
   outputs[["twenty_species"]] <- twenty_species
   
   return(outputs)
@@ -430,73 +322,73 @@ manysimulations <- function(sims=1000, freq=NA, spp=20, CV=0.2, numyears=100){
 }
 
 
-year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=2)
-save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears2.Rdata")
+f1s20y2 <- manysimulations(freq=1, spp=20, sims=10000, numyears=2)
+save(f1s20y2, file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears2.Rdata")
 
-year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=2)
-save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears2.Rdata")
-
-year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=2)
-save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears2.Rdata")
-
-#########---------------------
-
-year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=5)
-save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears5.Rdata")
-
-year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=5)
-save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears5.Rdata")
-
-year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=5)
-save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears5.Rdata")
+# year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=2)
+# save(year2, file="~/../Dropbox/negative_population_trends/10ksims_freq2_spp20_numyears2.Rdata")
+# 
+# year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=2)
+# save(year3, file="~/../Dropbox/negative_population_trends/10ksims_freq5_spp20_numyears2.Rdata")
 
 #########---------------------
 
-year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=10)
-save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears10.Rdata")
-
-year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=10)
-save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears10.Rdata")
-
-year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=10)
-save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears10.Rdata")
-
-#########---------------------
-
-year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=20)
-save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears20.Rdata")
-
-year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=20)
-save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears20.Rdata")
-
-year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=20)
-save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears20.Rdata")
+f1s20y5 <- manysimulations(freq=1, spp=20, sims=10, numyears=5)
+save(f1s20y5, file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears5.Rdata")
+# 
+# year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=5)
+# save(year2, file="~/../Dropbox/negative_population_trends/10ksims_freq2_spp20_numyears5.Rdata")
+# 
+# year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=5)
+# save(year3, file="~/../Dropbox/negative_population_trends/10ksims_freq5_spp20_numyears5.Rdata")
 
 #########---------------------
 
-year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=40)
-save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears40.Rdata")
+f1s20y10 <- manysimulations(freq=1, spp=20, sims=10000, numyears=10)
+save(f1s20y10, file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears10.Rdata")
 
-year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=40)
-save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears40.Rdata")
-
-year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=40)
-save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears40.Rdata")
-
-#########---------------------
-
-year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=50)
-save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears50.Rdata")
+# year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=10)
+# save(year2, file="~/../Dropbox/negative_population_trends/10ksims_freq2_spp20_numyears10.Rdata")
+# 
+# year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=10)
+# save(year3, file="~/../Dropbox/negative_population_trends/10ksims_freq5_spp20_numyears10.Rdata")
 
 #########---------------------
 
-year1 <- manysimulations(freq=1, spp=20, sims=10000, numyears=100)
-save(year1, file="~/negative_population_trends/10ksims_freq1_spp20_numyears100.Rdata")
+f1s20y20 <- manysimulations(freq=1, spp=20, sims=10000, numyears=20)
+save(f1s20y20, file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears20.Rdata")
 
-year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=100)
-save(year2, file="~/negative_population_trends/10ksims_freq2_spp20_numyears100.Rdata")
+# year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=20)
+# save(year2, file="~/../Dropbox/negative_population_trends/10ksims_freq2_spp20_numyears20.Rdata")
+# 
+# year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=20)
+# save(year3, file="~/../Dropbox/negative_population_trends/10ksims_freq5_spp20_numyears20.Rdata")
 
-year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=100)
-save(year3, file="~/negative_population_trends/10ksims_freq5_spp20_numyears100.Rdata")
+#########---------------------
+
+f1s20y40 <- manysimulations(freq=1, spp=20, sims=10000, numyears=40)
+save(f1s20y40 , file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears40.Rdata")
+
+# year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=40)
+# save(year2, file="~/../Dropbox/negative_population_trends/10ksims_freq2_spp20_numyears40.Rdata")
+# 
+# year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=40)
+# save(year3, file="~/../Dropbox/negative_population_trends/10ksims_freq5_spp20_numyears40.Rdata")
+
+#########---------------------
+
+f1s20y50 <- manysimulations(freq=1, spp=20, sims=10000, numyears=50)
+save(f1s20y50, file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears50.Rdata")
+
+#########---------------------
+
+f1s20y100 <- manysimulations(freq=1, spp=20, sims=10000, numyears=100)
+save(f1s20y100, file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears100.Rdata")
+
+# year2 <- manysimulations(freq=2, spp=20, sims=10000, numyears=100)
+# save(year2, file="~/../Dropbox/negative_population_trends/10ksims_freq2_spp20_numyears100.Rdata")
+# 
+# year3 <- manysimulations(freq=5, spp=20, sims=10000, numyears=100)
+# save(year3, file="~/../Dropbox/negative_population_trends/10ksims_freq5_spp20_numyears100.Rdata")
 
 
