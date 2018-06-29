@@ -1,3 +1,9 @@
+---
+title: "Log vs Linear Model"
+output: pdf_document
+---
+
+```{r }
 library(tidyverse)
 
 y2 <- read.csv("~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears2.csv")
@@ -37,3 +43,6 @@ y100 %>% group_by(bar, model) %>%
             negativebeta = sum(beta<0),
             percent = negativebeta/samplesize*100)
 
+
+
+```

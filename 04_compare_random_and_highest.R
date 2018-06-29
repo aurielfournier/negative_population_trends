@@ -1,7 +1,5 @@
 library(ggplot2)
 library(tidyverse)
-keepbars <- c("True Population Size, 2 Highest Populations",
-              "True Population Size, 2 Random Populations")
 
 dat2 <- read.csv("10ksims_freq1_spp20_nyears2.csv") %>%
   mutate(bar = factor(bar),
@@ -29,8 +27,7 @@ dat100 <- read.csv("10ksims_freq1_spp20_nyears100.csv") %>%
 
 dat <- rbind(dat2, dat5, dat10, 
              dat20, dat50, dat100) %>%
-          filter(bar %in% keepbars) %>%
-          mutate(bar = factor(bar, levels=keepbars))
+          mutate(bar = factor(bar))
 
 model <- glm(data=dat, beta ~ years * bar)
 

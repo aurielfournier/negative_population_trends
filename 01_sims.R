@@ -311,7 +311,7 @@ manysimulations <- function(sims=1000, freq=NA, spp=20, CV=0.2, numyears=100, to
   
 }
 
-f1s20y2top5 <- manysimulations(freq=1, spp=20, sims=10, numyears=2, topnum=5)
+f1s20y2top5 <- manysimulations(freq=1, spp=20, sims=10000, numyears=2, topnum=5)
 save(f1s20y2top5, file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_numyears2_top5.Rdata")
 
 
