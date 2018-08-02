@@ -474,3 +474,85 @@ y2 <- rbind(y2bar1, y2bar2, y2bar1log, y2bar2log)
 write.csv(y2, 
           file="~/../Dropbox/negative_population_trends/10ksims_freq1_spp20_nyears100_top10.csv", 
           row.names = FALSE)
+
+
+
+## PORTAL
+
+
+
+load("~/../Dropbox/negative_population_trends/portal2.Rdata")
+
+
+y2bar1 <- portaltop2$real_values_random_linear %>% 
+  mutate(bar="True Population Size, 2 Random Populations",
+         model = "linear")
+
+y2bar2 <- portaltop2$real_values_highest_linear %>% 
+  mutate(bar="True Population Size, 2 Highest Populations",
+         model = "linear")
+
+y2bar1log <- portaltop2$real_values_random_log %>% 
+  mutate(bar="True Population Size, 2 Random Populations",
+         model = "log")
+
+y2bar2log <- portaltop2$real_values_highest_log %>% 
+  mutate(bar="True Population Size, 2 Highest Populations",
+         model = "log")
+
+y2 <- rbind(y2bar1, y2bar2, y2bar1log, y2bar2log)
+
+write.csv(y2, 
+          file="~/../Dropbox/negative_population_trends/portal2.csv", 
+          row.names = FALSE)
+
+load("~/../Dropbox/negative_population_trends/portal3.Rdata")
+
+
+y2bar1 <- portaltop3$real_values_random_linear %>% 
+  mutate(bar="True Population Size, 2 Random Populations",
+         model = "linear")
+
+y2bar2 <- portaltop3$real_values_highest_linear %>% 
+  mutate(bar="True Population Size, 2 Highest Populations",
+         model = "linear")
+
+y2bar1log <- portaltop3$real_values_random_log %>% 
+  mutate(bar="True Population Size, 2 Random Populations",
+         model = "log")
+
+y2bar2log <- portaltop3$real_values_highest_log %>% 
+  mutate(bar="True Population Size, 2 Highest Populations",
+         model = "log")
+
+y2 <- rbind(y2bar1, y2bar2, y2bar1log, y2bar2log)
+
+write.csv(y2, 
+          file="~/../Dropbox/negative_population_trends/portal3.csv", 
+          row.names = FALSE)
+
+
+load("~/../Dropbox/negative_population_trends/portal4.Rdata")
+
+
+y2bar1 <- portaltop4$real_values_random_linear %>% 
+  mutate(bar="True Population Size, 2 Random Populations",
+         model = "linear")
+
+y2bar2 <- portaltop4$real_values_highest_linear %>% 
+  mutate(bar="True Population Size, 2 Highest Populations",
+         model = "linear")
+
+y2bar1log <- portaltop4$real_values_random_log %>% 
+  mutate(bar="True Population Size, 2 Random Populations",
+         model = "log")
+
+y2bar2log <- portaltop4$real_values_highest_log %>% 
+  mutate(bar="True Population Size, 2 Highest Populations",
+         model = "log")
+
+y2 <- rbind(y2bar1, y2bar2, y2bar1log, y2bar2log)
+
+write.csv(y2, 
+          file="~/../Dropbox/negative_population_trends/portal4.csv", 
+          row.names = FALSE)

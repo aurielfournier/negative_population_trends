@@ -180,7 +180,7 @@ realtrend <- function(time_series, spp.=spp, numyears=100,topnum=2){
   for(column in 1:spp.){
     ## run two models, one on the first species, one on the second
     speciesmodel1 <- lm(allspecies[,column] ~ allspecies$year)
-    logspeciesmodel1 <- lm(allspecies[,(column+21)] ~ allspecies$year)
+    logspeciesmodel1 <- lm(allspecies[,(column+(spp.+1))] ~ allspecies$year)
     
     ## extract the beta coefficient, pvalue and rsquared for the first species
     values[column,1] <- speciesmodel1$coefficients[2]

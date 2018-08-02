@@ -1,0 +1,30 @@
+---
+title: "portal sim"
+output: pdf_document
+---
+
+```{r }
+library(tidyverse)
+
+p2 <- read.csv("~/../Dropbox/negative_population_trends/portal2.csv")
+p3 <- read.csv("~/../Dropbox/negative_population_trends/portal3.csv")
+p4 <- read.csv("~/../Dropbox/negative_population_trends/portal4.csv")
+
+p2 %>% group_by(bar, model) %>% 
+  summarize(samplesize=n(),
+            negativebeta = sum(beta<0),
+            percent = negativebeta/samplesize*100)
+
+p3 %>% group_by(bar, model) %>% 
+  summarize(samplesize=n(),
+            negativebeta = sum(beta<0),
+            percent = negativebeta/samplesize*100)
+
+p4 %>% group_by(bar, model) %>% 
+  summarize(samplesize=n(),
+            negativebeta = sum(beta<0),
+            percent = negativebeta/samplesize*100)
+
+
+
+```
