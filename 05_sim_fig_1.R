@@ -93,7 +93,7 @@ a <- datpercent %>%
             strip.background = element_rect(fill="white",color="black"),
             strip.text = element_text(size = 15))
 
-jpeg(file="~/negative_population_trends/sim_fig_combined.jpeg", width=25, height=15, units="cm", res=300)
+jpeg(file="~/negative_population_trends/sim_fig_combined_top2.jpeg", width=25, height=15, units="cm", res=600)
 cowplot::plot_grid(a,b,nrow=2, align = "h")
 dev.off()
 
