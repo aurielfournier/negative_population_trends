@@ -1,0 +1,500 @@
+---
+output: 
+  pdf_document: 
+    fig_caption: yes
+    keep_tex: yes
+header-includes: 
+    \usepackage{float}
+    \usepackage{hyperref}
+    \usepackage{gensymb}
+editor_options: 
+  chunk_output_type: console
+---
+
+2019
+\vspace{4cm}
+\begin{center}
+{\Large Why most studied populations should decline}
+
+\vspace{4cm}
+
+\end{center}
+
+
+\section{Portal data - single species plots}
+
+```{r,echo=F,eval=F}
+# Load portal data, then sample only most common or randomly sample plots
+# This creates data to be used in next code chunk
+
+set.seed(12345)
+rodent <- read.csv('../Empirical_Analyses/Rodents/Portal_rodent.csv',header=T)
+library(viridis)
+source('../Empirical_Analyses/scripts/random_plots.R')
+source('../Empirical_Analyses/scripts/analysis_functions.R')
+
+source('../Empirical_Analyses/scripts/clean_portal_data.R')
+#f_rodent = f_rodent[f_rodent$year>1979,]
+f_rodent$count = log(f_rodent$count + 1)
+
+first5 = 'yes'
+source('../Empirical_Analyses/scripts/portal_data_analysis.R')
+
+first5 = 'no'
+source('../Empirical_Analyses/scripts/portal_data_analysis.R')
+
+save.image(file = '../Empirical_Analyses/analysis-outputs/portal_data_outputs_random_samples_vs_common_plots.Rdata') 
+```
+
+
+
+```{r,echo=F,fig.cap='Total number of individuals caught of each common species each year. \\label{fig:portal_time_series}'}
+
+load('../Empirical_Analyses/analysis-outputs/portal_data_outputs_random_samples_vs_common_plots.Rdata')
+
+require(dplyr)
+
+par(mfcol=c(4,2),mar=c(1.5,2.5,1.5,0),oma=c(4.5,4,1,0.5),mgp = c(3, 0.4, 0))
+for (species_name in common_rodents[1:length(common_rodents)]){
+  
+  # Subset data for single species and compile data for all plots by year
+  single_species <- f_rodent %>%
+    filter(species == species_name)
+  
+  single_species_by_year <- single_species %>%
+    group_by(year) %>%
+    summarize(count=sum(count))
+  
+  
+  plot(single_species_by_year,ylim=c(0,max(single_species_by_year$count)),main=species_name,las=1,pch=16)
+}
+
+mtext('Population size (number of individuals)',2,line=1,outer=T,adj=0.5,cex=1.2)
+mtext('Time (years)',1,line=2.5,outer=T,adj=0.52,cex=1.2)
+
+```
+
+
+
+```{r,echo=F,fig.cap='paired t-test basically',fig.height=4,fig.width=4}
+# Analysis of before and after removing the first 5 years. Perform a paired t.test to see the effect
+
+# These should be included in the supp mat
+
+load('../Empirical_Analyses/analysis-outputs/portal_data_outputs_random_samples_vs_common_plots.Rdata')
+
+first5_is_yes=(objects(pattern='whole_pop_trend_first5_is_yes'))
+first5_is_yes_names=lapply(first5_is_yes,as.name)
+estimated_trends_first5_is_yes = sapply(first5_is_yes_names,eval)
+
+
+first5_is_yes_no=(objects(pattern='whole_pop_trend_first5_is_no'))
+first5_is_yes_no_names=lapply(first5_is_yes_no,as.name)
+estimated_trends_first5_is_no = sapply(first5_is_yes_no_names,eval)
+
+par(mfcol=c(1,1),mar=c(4.5,4.5,1.5,1),oma=c(0,0,0,0),mgp = c(3, 0.4, 0))
+plot(estimated_trends_first5_is_yes,estimated_trends_first5_is_no,ylim=c(-5,8),xlim=c(-5,8),las=1, ylab = 'estimated population trend without first 5 years',xlab = 'estimated population trend with first 5 years',cex=1.4,cex.lab=1.2,pch=16)
+segments(-100,-100,100,100)
+
+text(estimated_trends_first5_is_yes,estimated_trends_first5_is_no,labels = common_rodents,pos = 3)
+
+t.test(estimated_trends_first5_is_yes,estimated_trends_first5_is_no,
+       paired = TRUE)
+```
+
+
+
+
+
+
+
+```{r,echo=F, fig.cap='Figure only looking at DM\\label{fig:DM_only'}
+
+load("../Empirical_Analyses/analysis-outputs/portal_data_outputs_random_samples_vs_common_plots_log_counts.Rdata")
+
+#jpeg(file = 'figures/single_species_DM.jpeg',width = 4,height=8,res=3000,units='in')
+
+# Plots of single species only
+par(mfcol=c(3,1),mar=c(4.5,4.5,1,0),oma=c(0.5,2,2,0.5),mgp = c(3, 0.8, 0))
+species_name='DM'
+single_species <- f_rodent %>%
+  filter(species == species_name)
+
+single_species_by_year <- single_species %>%
+  group_by(year) %>%
+  summarize(count=sum(count))
+
+
+j=1
+for (i in unique(single_species$plot)){
+  
+  if (i ==2){
+    plot(single_species$year[single_species$plot==i],single_species$count[single_species$plot==i],col=viridis(8,alpha=0.7,begin=0.1,end=0.9)[j],pch=16,type='o',las=1,cex.axis=1.4,cex.lab=1.4,ylim=c(0,max(single_species$count)),
+         xlab='Time (years)',ylab='log(count + 1)')
+  }else{
+    points(single_species$year[single_species$plot==i],single_species$count[single_species$plot==i],col=viridis(8,alpha=0.7,begin=0.1,end=0.9)[j],pch=16,type='o',ylim=c(0,4))
+  }
+  j=j+1
+}
+
+
+abline(v=1981.5,lty=2,lwd=2)
+mtext(text = '(a)',side = 3,line = -1.5,adj = 0.98)
+rect(xleft = 0,xright = 1981.5,ybottom = -2,ytop = 6,col=rgb(0.5,0.5,0.5,0.2),border = NA)
+
+
+#############################################
+
+# Other plots
+
+# Include first 5 years
+source('../Empirical_Analyses/scripts/stat_sig.R')
+
+first5 = 'yes'
+
+slopes = eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep='')))
+
+mytest=t.test(eval(as.symbol(paste(species_name,'_slopes_first5_is_','yes',sep=''))),eval(as.symbol(paste(species_name,'_slopes_first5_is_','no',sep=''))))
+print(paste(species_name,": ",mytest$p.value, ",",diff(mytest$estimate),sep = ''))
+
+
+plot(density(as.numeric(slopes)),main='',
+     xlim=c(-0.15,0.1),ylim=c(0,20),
+     xlab='trend estimate',las=1,cex.axis=1.4,cex.lab=1.4)
+
+
+abline(v=eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))),col='red',lwd=3,lty=3)
+abline(v=mean(as.numeric(slopes)), col='black',lwd=2)
+
+if (eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))) > mean(slopes)){
+  mtext(text =paste('>',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+}else{
+  mtext(text =paste('<',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+  
+}
+mtext(text = '(b)',side = 3,line = -1.5,adj = 0.98)
+mtext(text = 'including first 5 years',side = 3,line = -1.5,adj = 0.01)
+
+
+
+first5 = 'no'
+
+slopes = eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep='')))
+
+plot(density(as.numeric(slopes)),main='',
+     xlim=c(-0.15,0.1),ylim=c(0,20),
+     xlab='trend estimate',las=1,cex.axis=1.4,cex.lab=1.4)
+
+abline(v=eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))),col='red',lwd=3,lty=3)
+abline(v=mean(as.numeric(slopes)), col='black',lwd=2)
+
+
+if (eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))) > mean(slopes)){
+  mtext(text =paste('>',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+}else{
+  mtext(text =paste('<',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+}
+mtext(text = '(c)',side = 3,line = -1.5,adj = 0.98)
+mtext(text = 'not including first 5 years',side = 3,line = -1.5,adj = 0.01)
+i=i+1  
+
+
+
+#dev.off()
+
+
+```
+
+```{r,echo=F,fig.cap= 'Fig only looking at PF\\label{fig:PF_only'}
+
+
+
+load("../Empirical_Analyses/analysis-outputs/portal_data_outputs_random_samples_vs_common_plots_log_counts.Rdata")
+
+#jpeg(file = 'figures/single_species_PF.jpeg',width = 4,height=8,res=3000,units='in')
+
+# Plots of single species only
+par(mfcol=c(3,1),mar=c(4.5,4.5,1,0),oma=c(0.5,2,2,0.5),mgp = c(3, 0.8, 0))
+species_name='PF'
+single_species <- f_rodent %>%
+  filter(species == species_name)
+
+single_species_by_year <- single_species %>%
+  group_by(year) %>%
+  summarize(count=sum(count))
+
+
+j=1
+for (i in unique(single_species$plot)){
+  
+  if (i ==2){
+    plot(single_species$year[single_species$plot==i],single_species$count[single_species$plot==i],col=viridis(8,alpha=0.7,begin=0.1,end=0.9)[j],pch=16,type='o',las=1,cex.axis=1.4,cex.lab=1.4,ylim=c(0,max(single_species$count)),
+         xlab='Time (years)',ylab='log(count + 1)')
+  }else{
+    points(single_species$year[single_species$plot==i],single_species$count[single_species$plot==i],col=viridis(8,alpha=0.7,begin=0.1,end=0.9)[j],pch=16,type='o',ylim=c(0,4))
+  }
+  j=j+1
+}
+
+
+abline(v=1981.5,lty=2,lwd=2)
+mtext(text = '(a)',side = 3,line = -1.5,adj = 0.98)
+rect(xleft = 0,xright = 1981.5,ybottom = -2,ytop = 6,col=rgb(0.5,0.5,0.5,0.2),border = NA)
+
+
+#############################################
+
+# Other plots
+
+# Include first 5 years
+source('../Empirical_Analyses/scripts/stat_sig.R')
+
+first5 = 'yes'
+
+slopes = eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep='')))
+
+mytest=t.test(eval(as.symbol(paste(species_name,'_slopes_first5_is_','yes',sep=''))),eval(as.symbol(paste(species_name,'_slopes_first5_is_','no',sep=''))))
+print(paste(species_name,": ",mytest$p.value, ",",diff(mytest$estimate),sep = ''))
+
+
+plot(density(as.numeric(slopes)),main='',
+     xlim=c(-0.07,0.05),ylim=c(0,90),
+     xlab='trend estimate',las=1,cex.axis=1.4,cex.lab=1.4)
+
+
+abline(v=eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))),col='red',lwd=3,lty=3)
+abline(v=mean(as.numeric(slopes)), col='black',lwd=2)
+
+if (eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))) > mean(slopes)){
+  mtext(text =paste('>',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+}else{
+  mtext(text =paste('<',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+  
+}
+mtext(text = '(b)',side = 3,line = -1.5,adj = 0.98)
+mtext(text = 'including first 5 years',side = 3,line = -1.5,adj = 0.01)
+
+
+
+first5 = 'no'
+
+slopes = eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep='')))
+
+plot(density(as.numeric(slopes)),main='',
+     xlim=c(-0.07,0.05),ylim=c(0,90),
+     xlab='trend estimate',las=1,cex.axis=1.4,cex.lab=1.4)
+
+abline(v=eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))),col='red',lwd=3,lty=3)
+abline(v=mean(as.numeric(slopes)), col='black',lwd=2)
+
+
+if (eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))) > mean(slopes)){
+  mtext(text =paste('>',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+}else{
+  mtext(text =paste('<',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+}
+mtext(text = '(c)',side = 3,line = -1.5,adj = 0.98)
+mtext(text = 'not including first 5 years',side = 3,line = -1.5,adj = 0.01)
+i=i+1  
+
+
+
+#dev.off()
+
+```
+
+
+```{r,echo=F,fig.cap='Fig only looking at OL\\label{fig:OL_only}'}
+
+load("../Empirical_Analyses/analysis-outputs/portal_data_outputs_random_samples_vs_common_plots_log_counts.Rdata")
+
+#jpeg(file = 'figures/single_species_OL.jpeg',width = 4,height=8,res=3000,units='in')
+
+# Plots of single species only
+par(mfcol=c(3,1),mar=c(4.5,4.5,1,0),oma=c(0.5,2,2,0.5),mgp = c(3, 0.8, 0))
+species_name='OL'
+single_species <- f_rodent %>%
+  filter(species == species_name)
+
+single_species_by_year <- single_species %>%
+  group_by(year) %>%
+  summarize(count=sum(count))
+
+
+j=1
+for (i in unique(single_species$plot)){
+  
+  if (i ==2){
+    plot(single_species$year[single_species$plot==i],single_species$count[single_species$plot==i],col=viridis(8,alpha=0.7,begin=0.1,end=0.9)[j],pch=16,type='o',las=1,cex.axis=1.4,cex.lab=1.4,ylim=c(0,max(single_species$count)),
+         xlab='Time (years)',ylab='log(count + 1)')
+  }else{
+    points(single_species$year[single_species$plot==i],single_species$count[single_species$plot==i],col=viridis(8,alpha=0.7,begin=0.1,end=0.9)[j],pch=16,type='o',ylim=c(0,4))
+  }
+  j=j+1
+}
+
+
+abline(v=1981.5,lty=2,lwd=2)
+mtext(text = '(a)',side = 3,line = -1.5,adj = 0.98)
+rect(xleft = 0,xright = 1981.5,ybottom = -2,ytop = 6,col=rgb(0.5,0.5,0.5,0.2),border = NA)
+
+
+#############################################
+
+# Other plots
+
+# Include first 5 years
+source('../Empirical_Analyses/scripts/stat_sig.R')
+
+first5 = 'yes'
+
+slopes = eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep='')))
+
+mytest=t.test(eval(as.symbol(paste(species_name,'_slopes_first5_is_','yes',sep=''))),eval(as.symbol(paste(species_name,'_slopes_first5_is_','no',sep=''))))
+print(paste(species_name,": ",mytest$p.value, ",",diff(mytest$estimate),sep = ''))
+
+
+plot(density(as.numeric(slopes)),main='',
+     xlim=c(-0.12,0.05),ylim=c(0,30),
+     xlab='trend estimate',las=1,cex.axis=1.4,cex.lab=1.4)
+
+
+abline(v=eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))),col='red',lwd=3,lty=3)
+abline(v=mean(as.numeric(slopes)), col='black',lwd=2)
+
+if (eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))) > mean(slopes)){
+  mtext(text =paste('>',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+}else{
+  mtext(text =paste('<',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+  
+}
+mtext(text = '(b)',side = 3,line = -1.5,adj = 0.98)
+mtext(text = 'including first 5 years',side = 3,line = -1.5,adj = 0.01)
+
+
+
+first5 = 'no'
+
+slopes = eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep='')))
+
+plot(density(as.numeric(slopes)),main='',
+     xlim=c(-0.12,0.05),ylim=c(0,30),
+     xlab='trend estimate',las=1,cex.axis=1.4,cex.lab=1.4)
+
+abline(v=eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))),col='red',lwd=3,lty=3)
+abline(v=mean(as.numeric(slopes)), col='black',lwd=2)
+
+
+if (eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))) > mean(slopes)){
+  mtext(text =paste('>',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+}else{
+  mtext(text =paste('<',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+}
+mtext(text = '(c)',side = 3,line = -1.5,adj = 0.98)
+mtext(text = 'not including first 5 years',side = 3,line = -1.5,adj = 0.01)
+i=i+1  
+
+
+
+#dev.off()
+
+```
+
+
+
+
+
+
+
+\pagebreak
+
+
+\section{Figure S5}
+
+```{r,echo=F,fig.height=4,fig.width=6,fig.cap='Slope estimate from linear regression for biased sample of starting to sample at the high point in the time series versus not sampling at the high point. Any points below the identity line are situations where the slope estimate starting from the high point was less than that of sampling not starting from the high point.\\label{fig:GPDD_explanatory}'}
+
+##### This is figure S5
+
+# stuff here
+# Can Keith information on conservation/sampling status predict where we see most biased trends.
+load("../Empirical_Analyses/data/cleaned_timeseries_database_log_pop.Rdata")
+library(viridis)
+
+
+# Choose time series that are declining or stable (increasing ones would probably not be good...)
+sub_data = pop_info#subset(pop_info,pop_info$trend_p_value>0.05 | pop_info$overall_trend<0)
+#####
+
+# Load required functions
+source('../Empirical_Analyses/scripts/GPDD_investigation_functions.R')
+
+sub_data$all_time_slope = NULL
+sub_data$high_point_slope = NULL
+sub_data$random_slope = NULL
+sample_ID_vector = as.character(sub_data$ID)
+for (j in 1:length(sample_ID_vector)){
+  population = subset(long_dat,long_dat$ID==sample_ID_vector[j])
+  
+  outputs = calculate_slopes_max(population$popvalue)
+  
+  sub_data$all_time_slope[j] = outputs[1]
+  sub_data$high_point_slope[j] = outputs[2]
+  sub_data$random_slope[j] = outputs[3]
+
+#  sub_data$coef_var[j] = var(population$popvalue/max(population$popvalue))/mean(population$popvalue/max(population$popvalue))
+  #print(sample_ID_vector[j])
+}
+
+# Create vector of colors for biological class
+sub_data$color = as.numeric(as.factor(sub_data$class))
+sub_data$color = viridis_pal(alpha=0.6,option='viridis')(5)[sub_data$color]
+sub_data = sub_data[is.na(sub_data$high_point_slope)==F,]
+sub_data$shape = as.numeric(as.factor(sub_data$color)) + 14
+
+#pdf(file = 'slope_time_series_high_point_test_explanatory_variables.pdf',width = 8,height=4)
+#jpeg(file = 'figures/slope_time_series_high_point_test_explanatory_variables.jpeg',width = 8,height=4.5,res=3000,units='in')
+par(mfrow=c(1,3),oma=c(2,5,0.5,0),mar=c(4,0,0,0.5),mgp=c(2.5,0.6,0))
+
+y_bounds = 1.2*with(sub_data,range((all_time_slope-high_point_slope)))
+
+with(sub_data,
+     plot(coefficient_variation,(all_time_slope-high_point_slope),pch=sub_data$shape,ylab='',xlab='coefficient of variation',cex.lab=1.4,cex=2,col=sub_data$color,las=1,ylim=y_bounds))
+with(sub_data,
+     abline(lm((all_time_slope-high_point_slope)~coefficient_variation),col='black',lwd=2))
+  mtext('(a)',3,line = -2,adj = 0.04,cex = 1.4)
+
+#with(sub_data,
+#     summary(lm((all_time_slope-high_point_slope)~coef_var)))
+
+mtext(text = 'difference between trend estimates',side = 2,outer = F,cex=1.4,line=3,adj = 0.5)
+
+with(sub_data,
+     plot(autocorrelation,(all_time_slope-high_point_slope),pch=sub_data$shape,ylab='',xlab='autocorrelation',yaxt='n',cex.lab=1.4,cex=2,col=sub_data$color,ylim=y_bounds))
+with(sub_data,
+     abline(lm((all_time_slope-high_point_slope)~autocorrelation),col='black',lwd=2))
+  mtext('(b)',3,line = -2,adj = 0.04,cex = 1.4)
+#with(sub_data,
+#     summary(lm((all_time_slope-high_point_slope)~coef_var)))
+
+
+
+with(sub_data,
+     plot(gen_len,(all_time_slope-high_point_slope),pch=sub_data$shape,ylab='',xlab='generation length (years)', yaxt='n', cex.lab=1.4, cex=2, col=sub_data$color,ylim=y_bounds))
+with(sub_data,
+     abline(lm((all_time_slope-high_point_slope)~gen_len),col='black',lwd=2))
+  mtext('(c)',3,line = -2,adj = 0.04,cex = 1.4)
+#with(sub_data,
+#     summary(lm((all_time_slope-high_point_slope)~coef_var)))
+
+
+  legend('topright',legend = names(sort(table(sub_data$class),decreasing = T)),col =names(sort(table(sub_data$color),decreasing = T)),pch=as.numeric(names(sort(table(sub_data$shape),decreasing = T))),bty = 'n',pt.cex=2,cex=1.2)
+#dev.off()
+```
+
+
+
+
+\pagebreak
+
+
+

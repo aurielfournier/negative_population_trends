@@ -4,3 +4,7 @@ Empirical_Analyses/Literature/*
 .DS_Store
 Empirical_Analyses/old_code
 *.Rhistory
+manuscript_drafts/*
+.Rapp.history
+figures/*
+*.tex

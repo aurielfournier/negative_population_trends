@@ -4,7 +4,7 @@
 # Function that samples random plots for a single species. The function returns the regression coefficient for a 
           
 random_sampling = function(single_species){
-  random_plots = base::sample(1:24,2,replace=F) # Subsample plots
+  random_plots = base::sample(c(2,4,8,11,12,14,17,22),2,replace=F) # Subsample plots
   single_species <- single_species %>%
     filter(species == species_name,plot %in% random_plots)
 
