@@ -185,10 +185,10 @@ for (j in 1:length(sample_ID_vector)){
 sub_data$color = as.numeric(as.factor(sub_data$class))
 sub_data$color = viridis_pal(alpha=0.6,option='viridis')(5)[sub_data$color]
 sub_data = sub_data[is.na(sub_data$high_point_slope)==F,]
-sub_data$shape = as.numeric(as.factor(sub_data$color)) + 14
+sub_data$shape = as.numeric(as.factor(sub_data$color)) + 15
 
 
-#jpeg(file = '../figures/Figure[GPDDSlopeEstimateHighVsNot].jpeg',width = 5,height=5,res=1000,units='in')
+jpeg(file = '../figures/Figure[GPDDSlopeEstimateHighVsNot]2.jpeg',width = 5,height=5,res=1000,units='in')
 
 
 par(mfrow=c(1,1),oma=c(0,0,0,0),mar=c(4,4,0.5,0.5),mgp=c(2.5,0.5,0))
@@ -196,7 +196,7 @@ plot(x=sub_data$all_time_slope,y=sub_data$high_point_slope,ylim=c(-.11,0.055),xl
 segments(-20000,-20000,20000,20000,lwd=2)
 legend('topleft',legend = names(sort(table(sub_data$class),decreasing = T)),col =names(sort(table(sub_data$color),decreasing = T)),pch=as.numeric(names(sort(table(sub_data$shape),decreasing = T))),bty = 'n',pt.cex=2,cex=1.2)
 
-#dev.off()
+dev.off()
 ```
 
 
@@ -206,9 +206,9 @@ legend('topleft',legend = names(sort(table(sub_data$class),decreasing = T)),col 
 
 ```{r,echo=F,fig.height=4,fig.width=6,fig.cap='Slope estimate from linear regression for biased sample of starting to sample at the high point in the time series versus not sampling at the high point. Any points below the identity line are situations where the slope estimate starting from the high point was less than that of sampling not starting from the high point.\\label{fig:GPDD_explanatory}'}
 
-load("Empirical_Analyses/data/cleaned_timeseries_database_log_pop.Rdata")
+load("../Empirical_Analyses/data/cleaned_timeseries_database_log_pop.Rdata")
 #pdf(file = 'slope_time_series_high_point_test_explanatory_variables.pdf',width = 8,height=4)
-jpeg(file = 'figures/slope_time_series_high_point_test_explanatory_variables.jpeg',width = 8,height=4.5,res=3000,units='in')
+jpeg(file = '../figures/slope_time_series_high_point_test_explanatory_variables.jpeg',width = 8,height=4.5,res=3000,units='in')
 par(mfrow=c(1,3),oma=c(2,5,0.5,0),mar=c(4,0,0,0.5),mgp=c(2.5,0.6,0))
 
 y_bounds = 1.2*with(sub_data,range((all_time_slope-high_point_slope)))
@@ -300,15 +300,18 @@ source('../Empirical_Analyses/scripts/null_dist.R')
 save.image(file = "../Empirical_Analyses/analysis-outputs/results_for_removing_initial_years_of_time_series_log_pop.Rdata") 
 ```
 
-```{r,echo=F,fig.height=4,fig.width=8,fig.cap='(a) Example time series of Limosa fedoa from the North American Breeding Bird Survey (citation) (b) The trend in population size (i.e. the estimated slope coefficient) for different numbers of initial years removed from the data. In other words, we estimate the trend in abundance from years 1 through 15, then 2 through 16, and so forth. (c) Frequency of the slopes estimated to fit data in (b) for each species (n = 324). A positive value indicates the estimated trend in abundance over time becomes less negative when you remove more initial years. The dark line is the null distribution generated using simulated data. (d) The degree to which removing initial years affects the trend estimates. For example, A bias of 2.5 would indicate that not removing the first 9 years of data increases the estimated slope by 2.5 times. \\label{fig:removing_initial_years}'}
+```{r,echo=F,fig.height=4,fig.width=8,fig.cap='(a) Example time series of Western meadowlark (Sturnella neglecta) from the North American Breeding Bird Survey (citation) (b) The trend in population size (i.e. the estimated slope coefficient) for different numbers of initial years removed from the data. In other words, we estimate the trend in abundance from years 1 through 15, then 2 through 16, and so forth. (c) Frequency of the slopes estimated to fit data in (b) for each species (n = 324). A positive value indicates the estimated trend in abundance over time becomes less negative when you remove more initial years. The dark line is the null distribution generated using simulated data. (d) The degree to which removing initial years affects the trend estimates. For example, A bias of 2.5 would indicate that not removing the first 9 years of data increases the estimated slope by 2.5 times. \\label{fig:removing_initial_years}'}
 
-#jpeg(file = '../figures/Figure[GPDDRemovingInitialYears_log_pop_v2].jpeg',width = 10,height=5,res=500,units='in')
+jpeg(file = '../figures/Figure[GPDDRemovingInitialYears_log_pop_v2]2.jpeg',width = 10,height=5,res=500,units='in')
 
 source('../Empirical_Analyses/scripts/script_remove_initial_years.R')
 
 load('../Empirical_Analyses/data/cleaned_timeseries_database_log_pop.Rdata')
+pop_info = pop_info[pop_info$overall_trend<0,]
+long_dat = long_dat[long_dat$ID %in% pop_info$ID,]
+
 par(mfrow=c(1,4),oma=c(2,2,0.5,0),mar=c(4,4,0,0.5),mgp=c(2.5,0.6,0))
-  population = subset(long_dat,long_dat$ID==10000) # example time series
+  population = subset(long_dat,long_dat$ID=='B00223') # example time series
   example_slopes = calculate_slopes_removing_intial_years(population$popvalue)
   plot(population$popvalue[1:30],ylab='log( population size )',xlab='time (years)',las=1,cex.lab=1.4,pch=16)
   years=1:30
@@ -317,7 +320,7 @@ par(mfrow=c(1,4),oma=c(2,2,0.5,0),mar=c(4,4,0,0.5),mgp=c(2.5,0.6,0))
   
   plot(example_slopes,pch=16,ylab='trend estimate',xlab='number initial years removed',las=1,cex.lab=1.4)
   abline(lm(example_slopes~c(1:15)),lwd=2)
-  text(0.5,-0.018,labels = paste('slope = ',round(as.numeric(coef(lm(example_slopes~c(1:15)))[2]),5)),pos = 4,cex=1.4)
+  text(0.52,-0.021,labels = paste('slope = ',round(as.numeric(coef(lm(example_slopes~c(1:15)))[2]),5)),pos = 4,cex=1.4)
   mtext('(b)',3,line = -2,adj = 0.04,cex = 1.4)
 #range(trend,na.rm=T)
 #plot(density(trend,na.rm=T),xlim=c(-0.15,0.15),main='')
@@ -325,25 +328,27 @@ par(mfrow=c(1,4),oma=c(2,2,0.5,0),mar=c(4,4,0,0.5),mgp=c(2.5,0.6,0))
   
 load('../Empirical_Analyses/analysis-outputs/results_for_removing_initial_years_of_time_series_log_pop.Rdata')
 
-trend_histogram=hist(trend,breaks=50,freq = T,xlim=c(-0.1,0.1),main='',ylim=c(0,25),las=1,cex.lab=1.4,xlab='slope',ylab='frequency',col='black')
+trend <- trend[pop_info$overall_trend<0]
+
+trend_histogram=hist(trend,breaks=50,freq = T,xlim=c(-0.1,0.1),main='',ylim=c(0,29),las=1,cex.lab=1.4,xlab='slope',ylab='frequency',col='black')
 box()
-abline(v=0,lty=2,lwd=2)
+abline(v=0,lty=2,lwd=2,col='grey')
 
 
 
-points(null_data$mids,sum(trend_histogram$counts)*null_data$counts/sum(null_data$counts),col='grey',type='l',lwd=2)
+#points(null_data$mids,sum(trend_histogram$counts)*null_data$counts/sum(null_data$counts),col='grey',type='l',lwd=2)
 mtext('(c)',3,line = -2,adj = 0.05,cex = 1.4)
 
 
 # Panel D
-hist(bias,las=1,cex.lab=1.4,xlim=c(0,30),breaks=30,
+hist(bias,las=1,cex.lab=1.4,xlim=c(0,15),ylim=c(0,131),breaks=30,
      main='',ylab='frequency',xlab='bias',col='black')
 box()
-abline(v=1,lwd=2,lty=2,col='red')
+abline(v=1,lwd=2,lty=2,col='grey')
 mtext('(d)',3,line = -2,adj = 0.98,cex = 1.4)
 
 #save.image(file = 'Results_for_removing_initial_years_of_time_series.Rdata')
-#dev.off()
+dev.off()
 ```
 
 We also examined the effect of removing years from the beginning of the time series. The rationale here being that a census may have started in a year when a species was at a particularly high abundance. Therefore, the time series would start off artificially high. We subsampled each time series to remove initial years from the data. In other words, we examine the population size in years 1 through 15, then years 2 through 15, and so forth. We then examined how the estimated change in abundance (the slope coefficient) changed with more initial years removed. An example of this is shown in figure \ref{fig:removing_initial_years}b. Here, a positive relationship between the trend estimate (slope coefficient) and number of initial years removed would indicate a situation where the initial years of the time series did in fact cause the abundance trends to be more negative.

@@ -446,10 +446,11 @@ for (j in 1:length(sample_ID_vector)){
 }
 
 # Create vector of colors for biological class
+# Create vector of colors for biological class
 sub_data$color = as.numeric(as.factor(sub_data$class))
 sub_data$color = viridis_pal(alpha=0.6,option='viridis')(5)[sub_data$color]
 sub_data = sub_data[is.na(sub_data$high_point_slope)==F,]
-sub_data$shape = as.numeric(as.factor(sub_data$color)) + 14
+sub_data$shape = as.numeric(as.factor(sub_data$color)) + 15
 
 #pdf(file = 'slope_time_series_high_point_test_explanatory_variables.pdf',width = 8,height=4)
 #jpeg(file = 'figures/slope_time_series_high_point_test_explanatory_variables.jpeg',width = 8,height=4.5,res=3000,units='in')
