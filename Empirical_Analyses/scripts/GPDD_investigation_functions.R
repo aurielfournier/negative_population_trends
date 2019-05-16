@@ -35,7 +35,9 @@ calculate_slopes_max = function(x){
     if (high_point < 28 & high_point>7){
       high_point_slope = calculate_slope(x[high_point:(high_point+14)])
       all_time_slope = calculate_slope(x[(high_point-7):(high_point+7)])
-      return(cbind(all_time_slope,high_point_slope))
+      random_number = sample(1:20,size = 1)
+      random_slope = calculate_slope(x[random_number:(random_number+14)])
+      return(cbind(all_time_slope,high_point_slope,random_slope))
     }else{
       return(cbind(NA,NA))
     }

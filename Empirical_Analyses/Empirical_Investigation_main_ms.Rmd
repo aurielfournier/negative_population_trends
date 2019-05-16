@@ -1,0 +1,364 @@
+---
+output: 
+  pdf_document: 
+    fig_caption: yes
+    keep_tex: yes
+<!--bibliography: White_bib.bib-->
+header-includes: 
+    \usepackage{float}
+    \usepackage{hyperref}
+    \usepackage{gensymb}
+editor_options: 
+  chunk_output_type: console
+---
+
+2018
+\vspace{4cm}
+\begin{center}
+{\Large Why most studied populations should decline}
+
+\vspace{4cm}
+
+\end{center}
+
+\section{Portal data}
+
+```{r,echo=F,eval=F}
+# Load portal data, then sample only most common or randomly sample plots
+# This creates data to be used in next code chunk
+
+set.seed(12345)
+rodent <- read.csv('../Empirical_Analyses/Rodents/Portal_rodent.csv',header=T)
+library(viridis)
+source('../Empirical_Analyses/scripts/random_plots.R')
+source('../Empirical_Analyses/scripts/analysis_functions.R')
+
+source('../Empirical_Analyses/scripts/clean_portal_data.R')
+#f_rodent = f_rodent[f_rodent$year>1979,]
+f_rodent$count = log(f_rodent$count + 1)
+
+first5 = 'yes'
+source('../Empirical_Analyses/scripts/portal_data_analysis.R')
+
+first5 = 'no'
+source('../Empirical_Analyses/scripts/portal_data_analysis.R')
+
+save.image(file = '../Empirical_Analyses/analysis-outputs/portal_data_outputs_random_samples_vs_common_plots.Rdata') 
+```
+
+```{r,echo=F,fig.cap='Figure looking at DS only\\label{fig:DS_only}'}
+
+library(viridis)
+
+load("../Empirical_Analyses/analysis-outputs/portal_data_outputs_random_samples_vs_common_plots_log_counts.Rdata")
+
+#jpeg(file = 'figures/single_species_DS.jpeg',width = 4,height=8,res=3000,units='in')
+
+# Plots of single species only
+par(mfcol=c(3,1),mar=c(4.5,4.5,1,0),oma=c(0.5,2,2,0.5),mgp = c(3, 0.8, 0))
+species_name='DS'
+single_species <- f_rodent %>%
+  filter(species == species_name)
+
+single_species_by_year <- single_species %>%
+  group_by(year) %>%
+  summarize(count=sum(count))
+
+
+j=1
+for (i in unique(single_species$plot)){
+
+  if (i ==2){
+     plot(single_species$year[single_species$plot==i],single_species$count[single_species$plot==i],col=viridis(8,alpha=0.7,begin=0.1,end=0.9)[j],pch=16,type='o',las=1,cex.axis=1.4,cex.lab=1.4,ylim=c(0,max(single_species$count)),
+          xlab='Time (years)',ylab='log(count + 1)')
+  }else{
+    points(single_species$year[single_species$plot==i],single_species$count[single_species$plot==i],col=viridis(8,alpha=0.7,begin=0.1,end=0.9)[j],pch=16,type='o',ylim=c(0,4))
+  }
+  j=j+1
+}
+
+
+abline(v=1981.5,lty=2,lwd=2)
+mtext(text = '(a)',side = 3,line = -1.5,adj = 0.98)
+rect(xleft = 0,xright = 1981.5,ybottom = -2,ytop = 6,col=rgb(0.5,0.5,0.5,0.2),border = NA)
+
+
+#############################################
+
+# Other plots
+
+# Include first 5 years
+source('../Empirical_Analyses/scripts/stat_sig.R')
+
+first5 = 'yes'
+  
+  slopes = eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep='')))
+  
+  mytest=t.test(eval(as.symbol(paste(species_name,'_slopes_first5_is_','yes',sep=''))),eval(as.symbol(paste(species_name,'_slopes_first5_is_','no',sep=''))))
+  print(paste(species_name,": ",mytest$p.value, ",",diff(mytest$estimate),sep = ''))
+  
+  
+  plot(density(as.numeric(slopes)),main='',
+       xlim=c(-0.3,0),ylim=c(0,30),
+       xlab='trend estimate',las=1,cex.axis=1.4,cex.lab=1.4)
+  
+ 
+  abline(v=eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))),col='red',lwd=3,lty=3)
+  abline(v=mean(as.numeric(slopes)), col='black',lwd=2)
+  
+   if (eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))) > mean(slopes)){
+     mtext(text =paste('>',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+   }else{
+     mtext(text =paste('<',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+     
+   }
+  mtext(text = '(b)',side = 3,line = -1.5,adj = 0.98)
+  mtext(text = 'including first 5 years',side = 3,line = -1.5,adj = 0.01)
+
+
+
+first5 = 'no'
+  
+  slopes = eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep='')))
+  
+  plot(density(as.numeric(slopes)),main='',
+       xlim=c(-0.3,0.0),ylim=c(0,30),
+       xlab='trend estimate',las=1,cex.axis=1.4,cex.lab=1.4)
+  
+  abline(v=eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))),col='red',lwd=3,lty=3)
+  abline(v=mean(as.numeric(slopes)), col='black',lwd=2)
+
+  
+   if (eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep=''))) > mean(slopes)){
+     mtext(text =paste('>',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+   }else{
+     mtext(text =paste('<',format(round(stat_sig(eval(as.symbol(paste(species_name,'_slopes_first5_is_',first5,sep=''))),eval(as.symbol(paste(species_name,'common_plots_slope_first5_is_',first5,sep='')))),2),nsmall=2),sep=''),adj=0.05,line=-2.6,side = 3)
+   }
+  mtext(text = '(c)',side = 3,line = -1.5,adj = 0.98)
+  mtext(text = 'not including first 5 years',side = 3,line = -1.5,adj = 0.01)
+  i=i+1  
+#dev.off()
+
+```
+
+
+
+
+
+\pagebreak
+
+\section{GPDD analyses}
+
+
+```{r,echo=F,warning=F,message=F,fig.height=4,fig.width=4,fig.cap='Slope estimate from linear regression for biased sample of starting at the high point in the time series versus not sampling at the high point. Any points below the identity line are situations where the slope estimate starting from the high point was less than that of sampling not starting from the high point.\\label{fig:GPDD_high_point}'}
+# stuff here
+# Can Keith information on conservation/sampling status predict where we see most biased trends.
+load("../Empirical_Analyses/data/cleaned_timeseries_database_log_pop.Rdata")
+library(viridis)
+
+
+# Choose time series that are declining or stable (increasing ones would probably not be good...)
+sub_data = pop_info #subset(pop_info,pop_info$trend_p_value>0.05 | pop_info$overall_trend<0)
+#####
+
+# Load required functions
+source('../Empirical_Analyses/scripts/GPDD_investigation_functions.R')
+
+sub_data$all_time_slope = NULL
+sub_data$high_point_slope = NULL
+sub_data$random_slope = NULL
+sample_ID_vector = as.character(sub_data$ID)
+for (j in 1:length(sample_ID_vector)){
+  population = subset(long_dat,long_dat$ID==sample_ID_vector[j])
+  
+  outputs = calculate_slopes_max(population$popvalue)
+  
+  sub_data$all_time_slope[j] = outputs[1]
+  sub_data$high_point_slope[j] = outputs[2]
+  sub_data$random_slope[j] = outputs[3]
+
+#  sub_data$coef_var[j] = var(population$popvalue/max(population$popvalue))/mean(population$popvalue/max(population$popvalue))
+  #print(sample_ID_vector[j])
+}
+
+# Create vector of colors for biological class
+sub_data$color = as.numeric(as.factor(sub_data$class))
+sub_data$color = viridis_pal(alpha=0.6,option='viridis')(5)[sub_data$color]
+sub_data = sub_data[is.na(sub_data$high_point_slope)==F,]
+sub_data$shape = as.numeric(as.factor(sub_data$color)) + 15
+
+
+jpeg(file = '../figures/Figure[GPDDSlopeEstimateHighVsNot]2.jpeg',width = 5,height=5,res=1000,units='in')
+
+
+par(mfrow=c(1,1),oma=c(0,0,0,0),mar=c(4,4,0.5,0.5),mgp=c(2.5,0.5,0))
+plot(x=sub_data$all_time_slope,y=sub_data$high_point_slope,ylim=c(-.11,0.055),xlim=c(-.11,0.055),col=sub_data$color,ylab = 'trend estimate starting from high point',xlab='trend estimate not starting from high point',cex.lab=1.2,cex.axis=0.9,las=1,tcl=-0.25,pch=sub_data$shape,cex=2)
+segments(-20000,-20000,20000,20000,lwd=2)
+legend('topleft',legend = names(sort(table(sub_data$class),decreasing = T)),col =names(sort(table(sub_data$color),decreasing = T)),pch=as.numeric(names(sort(table(sub_data$shape),decreasing = T))),bty = 'n',pt.cex=2,cex=1.2)
+
+dev.off()
+```
+
+
+
+
+
+
+```{r,echo=F,fig.height=4,fig.width=6,fig.cap='Slope estimate from linear regression for biased sample of starting to sample at the high point in the time series versus not sampling at the high point. Any points below the identity line are situations where the slope estimate starting from the high point was less than that of sampling not starting from the high point.\\label{fig:GPDD_explanatory}'}
+
+load("../Empirical_Analyses/data/cleaned_timeseries_database_log_pop.Rdata")
+#pdf(file = 'slope_time_series_high_point_test_explanatory_variables.pdf',width = 8,height=4)
+jpeg(file = '../figures/slope_time_series_high_point_test_explanatory_variables.jpeg',width = 8,height=4.5,res=3000,units='in')
+par(mfrow=c(1,3),oma=c(2,5,0.5,0),mar=c(4,0,0,0.5),mgp=c(2.5,0.6,0))
+
+y_bounds = 1.2*with(sub_data,range((all_time_slope-high_point_slope)))
+
+with(sub_data,
+     plot(coefficient_variation,(all_time_slope-high_point_slope),pch=sub_data$shape,ylab='',xlab='coefficient of variation',cex.lab=1.4,cex=2,col=sub_data$color,las=1,ylim=y_bounds))
+with(sub_data,
+     abline(lm((all_time_slope-high_point_slope)~coefficient_variation),col='black',lwd=2))
+  mtext('(a)',3,line = -2,adj = 0.04,cex = 1.4)
+
+#with(sub_data,
+#     summary(lm((all_time_slope-high_point_slope)~coef_var)))
+
+mtext(text = 'difference between trend estimates',side = 2,outer = F,cex=1.4,line=3,adj = 0.5)
+
+with(sub_data,
+     plot(autocorrelation,(all_time_slope-high_point_slope),pch=sub_data$shape,ylab='',xlab='autocorrelation',yaxt='n',cex.lab=1.4,cex=2,col=sub_data$color,ylim=y_bounds))
+with(sub_data,
+     abline(lm((all_time_slope-high_point_slope)~autocorrelation),col='black',lwd=2))
+  mtext('(b)',3,line = -2,adj = 0.04,cex = 1.4)
+#with(sub_data,
+#     summary(lm((all_time_slope-high_point_slope)~coef_var)))
+
+
+
+with(sub_data,
+     plot(gen_len,(all_time_slope-high_point_slope),pch=sub_data$shape,ylab='',xlab='generation length (years)', yaxt='n', cex.lab=1.4, cex=2, col=sub_data$color,ylim=y_bounds))
+with(sub_data,
+     abline(lm((all_time_slope-high_point_slope)~gen_len),col='black',lwd=2))
+  mtext('(c)',3,line = -2,adj = 0.04,cex = 1.4)
+#with(sub_data,
+#     summary(lm((all_time_slope-high_point_slope)~coef_var)))
+
+
+  legend('topright',legend = names(sort(table(sub_data$class),decreasing = T)),col =names(sort(table(sub_data$color),decreasing = T)),pch=as.numeric(names(sort(table(sub_data$shape),decreasing = T))),bty = 'n',pt.cex=2,cex=1.2)
+dev.off()
+```
+
+
+
+
+\pagebreak
+
+\section{Removing initial years of time series}
+
+```{r,echo=F,eval=F}
+load("../Empirical_Analyses/data/cleaned_timeseries_database_log_pop.Rdata")
+
+source('../Empirical_Analyses/scripts/script_remove_initial_years.R')
+sub_data = pop_info
+trend = vector('numeric',nrow(sub_data))
+bias = vector('numeric',nrow(sub_data))
+sample_ID_vector = as.character(sub_data$ID)
+for (j in 1:length(sample_ID_vector)){
+  population = subset(long_dat,long_dat$ID==sample_ID_vector[j])
+  #min_pop_value = min(population$popvalue[population$popvalue>0])
+  #population$popvalue[population$popvalue==0]=min_pop_value
+  #population$popvalue = log(population$popvalue)
+  #plot(exp(population$popvalue))
+  #plot(population$popvalue)
+  estimated_slopes = calculate_slopes_removing_intial_years(population$popvalue)
+  #plot(estimated_slopes)
+  #estimated_slopes = calculate_slopes_removing_intial_years(log(population$popvalue +0.0001)) #log pop
+  # remove data if non-stationarity appears to be present
+  if (any(estimated_slopes>0)){
+    trend[j]=NA
+    bias[j]=NA
+  }else{
+  # Calculate the bias from year 10 versys year 1 
+    bias[j]= estimated_slopes[1]/estimated_slopes[11]
+    
+    # Standardize the values.
+    estimated_slopes = (estimated_slopes - min(estimated_slopes))/(max(estimated_slopes) - min(estimated_slopes))
+  #plot(estimated_slopes)  
+  #plot(outputs,type='l',col=rgb(0.5,0.5,0.5,0.4))
+  # a positive value for trend would indicate that slope estimate increases with more time sampled
+   # abline(lm(estimated_slopes~c(1:15)),col=rgb(0.5,0.5,0.5,0.5))
+    intercept = as.numeric(coef(lm(estimated_slopes~c(1:15)))[1])
+    slope = as.numeric(coef(lm(estimated_slopes~c(1:15)))[2])
+    trend[j] = slope
+    #bias[j] = 10*slope/intercept
+  }
+  print(j)
+}
+
+# Create null distribution
+source('../Empirical_Analyses/scripts/null_dist.R')
+
+save.image(file = "../Empirical_Analyses/analysis-outputs/results_for_removing_initial_years_of_time_series_log_pop.Rdata") 
+```
+
+```{r,echo=F,fig.height=4,fig.width=8,fig.cap='(a) Example time series of Western meadowlark (Sturnella neglecta) from the North American Breeding Bird Survey (citation) (b) The trend in population size (i.e. the estimated slope coefficient) for different numbers of initial years removed from the data. In other words, we estimate the trend in abundance from years 1 through 15, then 2 through 16, and so forth. (c) Frequency of the slopes estimated to fit data in (b) for each species (n = 324). A positive value indicates the estimated trend in abundance over time becomes less negative when you remove more initial years. The dark line is the null distribution generated using simulated data. (d) The degree to which removing initial years affects the trend estimates. For example, A bias of 2.5 would indicate that not removing the first 9 years of data increases the estimated slope by 2.5 times. \\label{fig:removing_initial_years}'}
+
+jpeg(file = '../figures/Figure[GPDDRemovingInitialYears_log_pop_v2]2.jpeg',width = 10,height=5,res=500,units='in')
+
+source('../Empirical_Analyses/scripts/script_remove_initial_years.R')
+
+load('../Empirical_Analyses/data/cleaned_timeseries_database_log_pop.Rdata')
+pop_info = pop_info[pop_info$overall_trend<0,]
+long_dat = long_dat[long_dat$ID %in% pop_info$ID,]
+
+par(mfrow=c(1,4),oma=c(2,2,0.5,0),mar=c(4,4,0,0.5),mgp=c(2.5,0.6,0))
+  population = subset(long_dat,long_dat$ID=='B00223') # example time series
+  example_slopes = calculate_slopes_removing_intial_years(population$popvalue)
+  plot(population$popvalue[1:30],ylab='log( population size )',xlab='time (years)',las=1,cex.lab=1.4,pch=16)
+  years=1:30
+  abline(lm(population$popvalue[1:30]~years),lwd=2)
+  mtext('(a)',3,line = -2,adj = 0.98,cex = 1.4)
+  
+  plot(example_slopes,pch=16,ylab='trend estimate',xlab='number initial years removed',las=1,cex.lab=1.4)
+  abline(lm(example_slopes~c(1:15)),lwd=2)
+  text(0.52,-0.021,labels = paste('slope = ',round(as.numeric(coef(lm(example_slopes~c(1:15)))[2]),5)),pos = 4,cex=1.4)
+  mtext('(b)',3,line = -2,adj = 0.04,cex = 1.4)
+#range(trend,na.rm=T)
+#plot(density(trend,na.rm=T),xlim=c(-0.15,0.15),main='')
+
+  
+load('../Empirical_Analyses/analysis-outputs/results_for_removing_initial_years_of_time_series_log_pop.Rdata')
+
+trend <- trend[pop_info$overall_trend<0]
+
+trend_histogram=hist(trend,breaks=50,freq = T,xlim=c(-0.1,0.1),main='',ylim=c(0,29),las=1,cex.lab=1.4,xlab='slope',ylab='frequency',col='black')
+box()
+abline(v=0,lty=2,lwd=2,col='grey')
+
+
+
+#points(null_data$mids,sum(trend_histogram$counts)*null_data$counts/sum(null_data$counts),col='grey',type='l',lwd=2)
+mtext('(c)',3,line = -2,adj = 0.05,cex = 1.4)
+
+
+# Panel D
+hist(bias,las=1,cex.lab=1.4,xlim=c(0,15),ylim=c(0,131),breaks=30,
+     main='',ylab='frequency',xlab='bias',col='black')
+box()
+abline(v=1,lwd=2,lty=2,col='grey')
+mtext('(d)',3,line = -2,adj = 0.98,cex = 1.4)
+
+#save.image(file = 'Results_for_removing_initial_years_of_time_series.Rdata')
+dev.off()
+```
+
+We also examined the effect of removing years from the beginning of the time series. The rationale here being that a census may have started in a year when a species was at a particularly high abundance. Therefore, the time series would start off artificially high. We subsampled each time series to remove initial years from the data. In other words, we examine the population size in years 1 through 15, then years 2 through 15, and so forth. We then examined how the estimated change in abundance (the slope coefficient) changed with more initial years removed. An example of this is shown in figure \ref{fig:removing_initial_years}b. Here, a positive relationship between the trend estimate (slope coefficient) and number of initial years removed would indicate a situation where the initial years of the time series did in fact cause the abundance trends to be more negative.
+
+We then examined the estimated relationship between trend estimate and the number of initial years removed for each declining species (Fig. \ref{fig:removing_initial_years}c). Here, a positive value for slope would indicate that the initial years of a time series were artificially high and these caused larger estimated declines. We see that there is a large number of time series with slope values between 0.05 and 0.1 (Fig. \ref{fig:removing_initial_years}c). The dark line is a null expectation of this data. 
+
+To obtain the null distribution in figure 3c, we simulated 50,000 time series where the initial years were not biased to be larger values. The simulations were of simple linear declines in population size. 
+$$
+N(t) = rt + N(0) + \epsilon, \mbox{ where } \epsilon \sim N(0,\sigma)
+$$
+where $N(t)$ is the population size at time $t$ and $r$ is the rate of decrease. Here, $\epsilon$ is a noise term with variance $\sigma$. We sub-sampled each time series to remove initial years from the data. In other words, we examine the population size in years 1 through 15, then years 2 through 15, and so forth. We then examined how the estimated change in abundance (the slope coefficient) changed with more initial years removed. We also standarized the slope coefficients to be between 0 and 1. This is the same procedure used with the real time series in the manuscript.
+
+
