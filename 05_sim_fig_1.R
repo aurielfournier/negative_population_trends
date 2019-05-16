@@ -34,11 +34,15 @@ dat <- rbind(dat2, dat5, dat10,
   filter(model == "log")
 
 
-b <-  ggplot(data=dat, aes(x=years, y=beta))+
+datbar1 <- dat %>% filter(bar=="True Population Size, 2 Highest Populations")
+
+datbar2 <- dat %>% filter(bar=="True Population Size, 2 Random Populations")
+
+b1 <-  ggplot(data=datbar1, aes(x=years, y=beta))+
   geom_boxplot()+
   geom_hline(aes(yintercept=0))+
-  ylab("Regression Slope")+
-  xlab("Length of Time \nSeries (years)")+
+  ylab("Regression slope")+
+  xlab("Length of time series (years)")+
   facet_wrap(~bar)+
   #ylim(-500,500)+
   theme(axis.text.x = element_text(size = 12, color = "black"), 
@@ -56,6 +60,29 @@ b <-  ggplot(data=dat, aes(x=years, y=beta))+
                                        color = "black"), 
         strip.text = element_blank())
 
+b2 <-  ggplot(data=datbar2, aes(x=years, y=beta))+
+  geom_boxplot()+
+  geom_hline(aes(yintercept=0))+
+  ylab("Regression slope")+
+  xlab("Length of time series (years)")+
+  facet_wrap(~bar)+
+  #ylim(-500,500)+
+  theme(axis.text.x = element_text(size = 12, color = "black"), 
+        #axis.text.y = element_text(size = 12, color = "black"), 
+        axis.title.y = element_blank(), 
+        axis.text.y=element_blank(),
+        plot.background = element_blank(), 
+        panel.border = element_blank(), 
+        panel.grid.major = element_line(colour = NA), 
+        panel.grid.minor = element_line(colour = NA), 
+        title = element_text(size = 20), 
+        panel.background = element_rect(fill = "white"),
+        axis.line.x = element_line(colour = "black"), 
+        axis.line.y = element_line(colour = "black"), 
+        strip.background = element_rect(fill = "white", 
+                                        color = "black"), 
+        strip.text = element_blank())
+
 
 datpercent <- dat %>%
               mutate(negative = ifelse(beta<0,1,0)) %>%
@@ -70,10 +97,18 @@ a <- datpercent %>%
          bar = ifelse(bar=="True Population Size, 2 Highest Populations",
                       "Two Largest Populations, Year 1", bar),
          bar = ifelse(bar=="True Population Size, 2 Random Populations",
-                      "Two Random Populations, Year 1", bar)) %>% 
-  ggplot(aes(x=years, y=percent))+
+                      "Two Random Populations, Year 1", bar))
+
+a1dat <- a %>% filter(bar == "Two Largest Populations, Year 1")
+
+a2dat <- a %>% filter(bar =="Two Random Populations, Year 1")
+
+
+
+ 
+a1 <-   ggplot(data=a1dat, aes(x=years, y=percent))+
       geom_col()+
-      ylab("Proportion Declining")+
+      ylab("Proportion declining")+
       xlab("Length of Time \nSeries (Years)")+
       ylim(0,1)+
       facet_wrap(~bar) +
@@ -93,8 +128,38 @@ a <- datpercent %>%
             strip.background = element_rect(fill="white",color="black"),
             strip.text = element_text(size = 15))
 
+
+
+a2 <-   ggplot(data=a2dat, aes(x=years, y=percent))+
+  geom_col()+
+  ylab("Proportion declining")+
+  xlab("Length of Time \nSeries (Years)")+
+  ylim(0,1)+
+  facet_wrap(~bar) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        #axis.text.y = element_text(size = 12, color = "black"), 
+        #axis.title.y = element_text(size = 20), 
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        plot.background = element_blank(), 
+        panel.border = element_blank(),
+        panel.grid.major = element_line(colour = NA), 
+        panel.grid.minor = element_line(colour = NA), 
+        title = element_text(size = 20), 
+        panel.background = element_rect(fill = "white"), 
+        axis.line.x = element_line(colour = "black"), 
+        axis.line.y = element_line(colour = "black"), 
+        strip.background = element_rect(fill="white",color="black"),
+        strip.text = element_text(size = 15))
+
+
 jpeg(file="~/negative_population_trends/sim_fig_combined_top2.jpeg", width=25, height=15, units="cm", res=600)
-cowplot::plot_grid(a,b,nrow=2, align = "h")
+cowplot::plot_grid(a1,a2,b1,b2,nrow=2, align = "h",
+                   labels=c("a","b","c","d"), 
+                   label_x=c(0.15, 0.025, 0.15, 0.025),
+                   label_y=0.97)
 dev.off()
 
 #
